@@ -1,9 +1,7 @@
 PHP client capable of executing Celery tasks and reading asynchronous results.
 
-Requires AMQP extension from PECL:
-    http://www.php.net/manual/en/amqp.setup.php
+Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following setting in Celery:
 
-and the following setting in Celery:
     CELERY_RESULT_EXCHANGE_TYPE = "json"
 
 ## POSTING TASKS
