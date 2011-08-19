@@ -3,11 +3,21 @@
 require_once('celery.php');
 
 $c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery');
-$id = $c->PostTask('a', 'b');
-echo $id;
-do
+$result = $c->PostTask('tasks.add', array(2,2));
+#$result = $c->PostTask('tasks.fail', array());
+#echo $result;
+
+while(!$result->isReady())
 {
-	$rv = $c->CheckResult($id);
-	sleep(0.1);
-	echo "...\n";
-} while($rv === false);
+	sleep(0.5);
+}
+
+if($result->isSuccess())
+{
+	echo $result->getResult();
+}
+else
+{
+	echo "ERROR";
+	echo $result->getTraceback();
+}

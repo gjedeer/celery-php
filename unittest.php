@@ -2,10 +2,11 @@
 
 /*
  * INSTALL:
+pear upgrade
 pear channel-discover pear.phpunit.de
 pear channel-discover components.ez.no
 pear channel-discover pear.symfony-project.com
-pear install phpunit/PHPUnit
+pear install --alldeps phpunit/PHPUnit
 
  * RUN:
 phpunit CeleryTest unittest.php
