@@ -9,7 +9,8 @@ $result = $c->PostTask('tasks.add', array(2,2));
 
 while(!$result->isReady())
 {
-	sleep(0.5);
+	sleep(1);
+	echo '...';
 }
 
 if($result->isSuccess())

@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * LICENSE: beerware
+ * GDR! wrote this file. As long as you retain this notice you can do whatever you want with this stuff. 
+ * If we meet some day, and you think this stuff is worth it, you can buy GDR! a beer in return. 
+ *
+ * http://massivescale.net/
+ * http://gdr.geekhood.net/
+ * gdr@go2.pl
+ */
+
 class CeleryException extends Exception {};
 
 class Celery
@@ -18,6 +28,12 @@ class Celery
 		$success = $this->connection->connect();
 	}
 
+	/**
+	 * Post a task to Celery
+	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
+	 * @param array $args (Non-associative) Array of arguments
+	 * @return AsyncResult
+	 */
 	function PostTask($task, $args)
 	{
 		if(!is_array($args))
@@ -45,6 +61,9 @@ class Celery
 	}
 }
 
+/*
+ * Asynchronous result of Celery task
+ */
 class AsyncResult 
 {
 	private $id;
@@ -52,13 +71,22 @@ class AsyncResult
 	private $result;
 	private $body;
 
+	/**
+	 * Don't instantiate AsyncResult yourself, used internally only
+	 * @param string $id Task ID in Celery
+	 * @param AMQPConnection $connection 
+	 */
 	function __construct($id, $connection)
 	{
 		$this->id = $id;
 		$this->connection = $connection;
 	}
 
-	function getCompleteResult()
+	/**
+	 * Connect to queue, see if there's a result waiting for us
+	 * Private - to be used internally
+	 */
+	private function getCompleteResult()
 	{
 		if($this->result)
 		{
@@ -97,11 +125,19 @@ class AsyncResult
 		}
 	}
 
+	/**
+	 * Check if a task result is ready
+	 * @return bool
+	 */
 	function isReady()
 	{
 		return ($this->getCompleteResult() !== false);
 	}
 
+	/**
+	 * Return task status (needs to be called after isReady() returned true)
+	 * @return string 'SUCCESS', 'FAILURE' etc - see Celery source
+	 */
 	function getStatus()
 	{
 		if(!$this->body)
@@ -111,11 +147,19 @@ class AsyncResult
 		return $this->body->status;
 	}
 
+	/**
+	 * Check if task execution has been successful or resulted in an error
+	 * @return bool
+	 */
 	function isSuccess()
 	{
 		return($this->getStatus() == 'SUCCESS');
 	}
 
+	/**
+	 * If task execution wasn't successful, return a Python traceback
+	 * @return string
+	 */
 	function getTraceback()
 	{
 		if(!$this->body)
@@ -125,6 +169,11 @@ class AsyncResult
 		return $this->body->traceback;
 	}
 
+	/**
+	 * Return a result of successful execution.
+	 * In case of failure, this returns an exception object
+	 * @return mixed Whatever the task returned
+	 */
 	function getResult()
 	{
 		if(!$this->body)
