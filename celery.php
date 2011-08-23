@@ -66,9 +66,9 @@ class Celery
  */
 class AsyncResult 
 {
-	private $id;
+	private $task_id;
 	private $connection;
-	private $result;
+	private $complete_result;
 	private $body;
 
 	/**
@@ -78,7 +78,7 @@ class AsyncResult
 	 */
 	function __construct($id, $connection)
 	{
-		$this->id = $id;
+		$this->task_id = $id;
 		$this->connection = $connection;
 	}
 
@@ -88,17 +88,17 @@ class AsyncResult
 	 */
 	private function getCompleteResult()
 	{
-		if($this->result)
+		if($this->complete_result)
 		{
-			return $this->result;
+			return $this->complete_result;
 		}
 
 		$this->connection->connect();
 		$q = new AMQPQueue($this->connection);
-		$q->declare($this->id, AMQP_AUTODELETE);
+		$q->declare($this->task_id, AMQP_AUTODELETE);
 		try
 		{
-			$q->bind('celeryresults', $this->id);
+			$q->bind('celeryresults', $this->task_id);
 		}
 		catch(AMQPQueueException $e)
 		{
@@ -109,13 +109,13 @@ class AsyncResult
 			'max' => 1,
 			'ack' => true,
 		));
-		$q->delete($this->id);
+		$q->delete($this->task_id);
 		$this->connection->disconnect();
 
 		if(!sizeof($rv)) return false;
 		else 
 		{
-			$this->result = $rv[0];
+			$this->complete_result = $rv[0];
 			if($rv[0]['Content-type'] != 'application/json')
 			{
 				throw new CeleryException('Response was not encoded using JSON - check your CELERY_RESULT_SERIALIZER setting!');
@@ -181,6 +181,100 @@ class AsyncResult
 			throw new CeleryException('Called getResult before task was ready');
 		}
 
-		return $this->body->result;
+		return $this->body->complete_result;
+	}
+
+	/*
+	 * Python API emulation
+	 * http://ask.github.com/celery/reference/celery.result.html
+	 */
+
+	/**
+	 * Returns TRUE if the task failed
+	 */
+	function failed()
+	{
+		return $this->isReady() && !$this->isSuccess();
+	}
+
+	/**
+	 * Forget about (and possibly remove the result of) this task
+	 * Currently does nothing in PHP client
+	 */
+	function forget()
+	{
+	}
+
+	/**
+	 * Wait until task is ready, and return its result.
+	 * @param float $timeout How long to wait, in seconds, before the operation times out
+	 * @param bool $propagate (TODO - not working) Re-raise exception if the task failed.
+	 * @param float $interval Time to wait (in seconds) before retrying to retrieve the result
+	 * @throws CeleryException on timeout
+	 * @return mixed result on both success and failure
+	 */
+	function get($timeout=10, $propagate=TRUE, $interval=0.5)
+	{
+		$interval_us = (int)($interval * 1000000);
+		$iteration_limit = (int)($timeout / $interval);
+
+        for($i = 0; $i < $iteration_limit; $i++)
+        {
+                if($this->isReady())
+                {
+                        break;
+                }
+
+                usleep($interval_us);
+        }
+
+        if(!$result->isReady())
+        {
+                throw new CeleryException(sprintf('AMQP task %s(%s) did not return after 10 seconds', $task, json_encode($args)), 4);
+        }
+
+        return $this->getResult();
+	}
+
+	/**
+	 * Implementation of Python's properties: result, state
+	 */
+	public function __get($property)
+	{
+		if($property == 'result')
+		{
+			return $this->getResult();
+		}
+		elseif($property == 'state' || $property == 'status')
+		{
+			if($this->isReady())
+			{
+				return $this->getStatus();
+			}
+			else
+			{
+				return 'PENDING';
+			}
+		}
+
+		return $this->$property;
+	}
+
+	/**
+	 * Send revoke signal to all workers
+	 * Does nothing in PHP client
+	 */
+	function revoke()
+	{
+	}
+
+	function successful()
+	{
+		return $this->isSuccess();
+	}
+
+	function wait($timeout=10, $propagate=TRUE, $interval=0.5)
+	{
+		return get($timeout, $propagate, $interval);
 	}
 }
