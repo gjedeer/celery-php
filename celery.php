@@ -1,18 +1,34 @@
 <?php
 
-/*
- * LICENSE: beerware
+/**
+ * This file contains a PHP client to Celery distributed task queue
+ *
+ * LICENSE: beerware.
+ *
  * GDR! wrote this file. As long as you retain this notice you can do whatever you want with this stuff. 
  * If we meet some day, and you think this stuff is worth it, you can buy GDR! a beer in return. 
  *
- * http://massivescale.net/
- * http://gdr.geekhood.net/
- * gdr@go2.pl
+ * @link http://massivescale.net/
+ * @link http://gdr.geekhood.net/
+ * @link https://github.com/gjedeer/celery-php
+ *
+ * @package celery-php
+ * @license http://en.wikipedia.org/wiki/Beerware Beerware
+ * @author GDR! <gdr@go2.pl>
  */
 
+/**
+ * General exception class
+ */
 class CeleryException extends Exception {};
+/**
+ * Emited by AsyncResult::get() on timeout
+ */
 class CeleryTimeoutException extends CeleryException {};
 
+/**
+ * Client for a Celery server
+ */
 class Celery
 {
 	private $connection = null;
@@ -43,7 +59,9 @@ class Celery
 		}
 		$id = uniqid('php_', TRUE);
 		$xchg = new AMQPExchange($this->connection, 'celery');
-		// TODO support kwargs
+		/**
+		 *  @todo support kwargs
+		 */
 		$task_array = array(
 			'id' => $id,
 			'task' => $task,
@@ -216,7 +234,7 @@ class AsyncResult
 	 * @param float $timeout How long to wait, in seconds, before the operation times out
 	 * @param bool $propagate (TODO - not working) Re-raise exception if the task failed.
 	 * @param float $interval Time to wait (in seconds) before retrying to retrieve the result
-	 * @throws CeleryException on timeout
+	 * @throws CeleryTimeoutException on timeout
 	 * @return mixed result on both success and failure
 	 */
 	function get($timeout=10, $propagate=TRUE, $interval=0.5)
