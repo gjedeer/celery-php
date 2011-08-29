@@ -19,15 +19,18 @@
 
 /**
  * General exception class
+ * @package celery-php
  */
 class CeleryException extends Exception {};
 /**
  * Emited by AsyncResult::get() on timeout
+ * @package celery-php
  */
 class CeleryTimeoutException extends CeleryException {};
 
 /**
  * Client for a Celery server
+ * @package celery-php
  */
 class Celery
 {
@@ -83,6 +86,7 @@ class Celery
 
 /*
  * Asynchronous result of Celery task
+ * @package celery-php
  */
 class AsyncResult 
 {
