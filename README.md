@@ -27,6 +27,20 @@ Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php)
 		echo $result->getTraceback();
 	}
 
+## PYTHON-LIKE API
+
+An API compatible to AsyncResult in Python is available too.
+
+        $c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
+        $result = $c->PostTask('tasks.add', array(2,2));
+
+        $result->get();
+        if($result->successful())
+        {
+                echo $result->result;
+        }
+
+
 ## ABOUT
 
 Created in mere 2 days, so expect no wonders. Based on [this blog post](http://www.toforge.com/2011/01/run-celery-tasks-from-php/) and reading Celery sources. Thanks to Skrat, author of [Celerb](https://github.com/skrat/celerb) for a tip about response encoding. Created for the needs of my consulting work at [Massive Scale](http://massivescale.net/).
