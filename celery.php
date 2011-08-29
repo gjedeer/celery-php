@@ -11,6 +11,7 @@
  */
 
 class CeleryException extends Exception {};
+class CeleryTimeoutException extends CeleryException {};
 
 class Celery
 {
@@ -42,6 +43,7 @@ class Celery
 		}
 		$id = uniqid('php_', TRUE);
 		$xchg = new AMQPExchange($this->connection, 'celery');
+		// TODO support kwargs
 		$task_array = array(
 			'id' => $id,
 			'task' => $task,
@@ -57,7 +59,7 @@ class Celery
 		$success = $xchg->publish($task, 'celery', 0, $params);
 		$this->connection->disconnect();
 
-		return new AsyncResult($id, $this->connection);
+		return new AsyncResult($id, $this->connection, $task_array['task'], $args);
 	}
 }
 
@@ -75,11 +77,15 @@ class AsyncResult
 	 * Don't instantiate AsyncResult yourself, used internally only
 	 * @param string $id Task ID in Celery
 	 * @param AMQPConnection $connection 
+	 * @param string task_name
+	 * @param array task_args
 	 */
-	function __construct($id, $connection)
+	function __construct($id, $connection, $task_name=NULL, $task_args=NULL)
 	{
 		$this->task_id = $id;
 		$this->connection = $connection;
+		$this->task_name = $task_name;
+		$this->task_args = $task_args;
 	}
 
 	/**
@@ -181,13 +187,13 @@ class AsyncResult
 			throw new CeleryException('Called getResult before task was ready');
 		}
 
-		return $this->body->complete_result;
+		return $this->body->result;
 	}
 
-	/*
-	 * Python API emulation
-	 * http://ask.github.com/celery/reference/celery.result.html
-	 */
+	/****************************************************************************
+	 * Python API emulation                                                     *
+	 * http://ask.github.com/celery/reference/celery.result.html                *
+	 ****************************************************************************/
 
 	/**
 	 * Returns TRUE if the task failed
@@ -228,23 +234,56 @@ class AsyncResult
                 usleep($interval_us);
         }
 
-        if(!$result->isReady())
+        if(!$this->isReady())
         {
-                throw new CeleryException(sprintf('AMQP task %s(%s) did not return after 10 seconds', $task, json_encode($args)), 4);
+                throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after 10 seconds', $this->task_name, json_encode($this->task_args)), 4);
         }
 
         return $this->getResult();
 	}
 
 	/**
-	 * Implementation of Python's properties: result, state
+	 * Implementation of Python's properties: result, state/status
 	 */
 	public function __get($property)
 	{
+		/**
+		 * When the task has been executed, this contains the return value. 
+		 * If the task raised an exception, this will be the exception instance.
+		 */
 		if($property == 'result')
 		{
-			return $this->getResult();
+			if($this->isReady())
+			{
+				return $this->getResult();
+			}
+			else
+			{
+				return NULL;
+			}
 		}
+		/**
+		 * state: The tasks current state.
+		 *
+		 * Possible values includes:
+		 *
+		 * PENDING
+		 * The task is waiting for execution.
+		 *
+		 * STARTED
+		 * The task has been started.
+		 *
+		 * RETRY
+		 * The task is to be retried, possibly because of failure.
+		 *
+		 * FAILURE
+		 * The task raised an exception, or has exceeded the retry limit. The result attribute then contains the exception raised by the task.
+		 *
+		 * SUCCESS
+		 * The task executed successfully. The result attribute then contains the tasks return value.
+		 *
+		 * status: Deprecated alias of state.
+		 */
 		elseif($property == 'state' || $property == 'status')
 		{
 			if($this->isReady())
@@ -261,6 +300,15 @@ class AsyncResult
 	}
 
 	/**
+	 * Returns True if the task has been executed.
+	 * If the task is still running, pending, or is waiting for retry then False is returned.
+	 */
+	function ready()
+	{
+		return $this->isReady();
+	}
+
+	/**
 	 * Send revoke signal to all workers
 	 * Does nothing in PHP client
 	 */
@@ -268,11 +316,17 @@ class AsyncResult
 	{
 	}
 
+	/**
+	 * Returns True if the task executed successfully.
+	 */
 	function successful()
 	{
 		return $this->isSuccess();
 	}
 
+	/**
+	 * Deprecated alias to get()
+	 */
 	function wait($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
 		return get($timeout, $propagate, $interval);
