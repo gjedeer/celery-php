@@ -356,6 +356,6 @@ class AsyncResult
 	 */
 	function wait($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
-		return get($timeout, $propagate, $interval);
+		return $this->get($timeout, $propagate, $interval);
 	}
 }

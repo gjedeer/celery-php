@@ -71,7 +71,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 		$result = $c->PostTask('tasks.fail', array());
 
-		for($i = 0; $i < 10; $i++)
+		for($i = 0; $i < 20; $i++)
 		{
 			if($result->isReady())
 			{
@@ -99,6 +99,28 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 		$result->isSuccess();
 	}
 
+	/**
+	 * @expectedException CeleryException
+	 */
+	public function testPrematureGetTraceback()
+	{
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.delayed', array());
+		$result->getTraceback();
+	}
+
+	/**
+	 * @expectedException CeleryException
+	 */
+	public function testPrematureGetResult()
+	{
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.delayed', array());
+		$result->getResult();
+	}
+
 	public function testFailed()
 	{
 		$c = get_c();
@@ -109,10 +131,11 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	}
 
 	/*
+	 * Test Python API
 	 * Based on http://www.celeryproject.org/tutorials/first-steps-with-celery/
 	 */
 	public function testGet()
-	{
+	{                                                                
 		$c = get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array(4,4));
@@ -133,5 +156,36 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$result->get(1, TRUE, 0.1);
+	}
+
+	public function testStateProperty()
+	{
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.delayed', array());
+		$this->assertEquals($result->state, 'PENDING');
+		$result->get();
+		$this->assertEquals($result->state, 'SUCCESS');
+	}
+
+	/* NO-OP functions should not fail */
+	public function testForget()
+	{
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.add', array(2,2));
+        $result->forget();
+		$result->revoke();
+	}
+
+	public function testWait()
+	{                                                                
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.add', array(4,4));
+		$rv = $result->wait();
+		$this->assertEquals(8, $rv);
+		$this->assertEquals(8, $result->result);
+		$this->assertTrue($result->successful());
 	}
 }
