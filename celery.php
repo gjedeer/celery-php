@@ -56,7 +56,7 @@ class Celery
 	/**
 	 * Post a task to Celery
 	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
-	 * @param array $args (Non-associative) Array of arguments
+	 * @param array $args Array of arguments (kwargs call when $args is associative)
 	 * @return AsyncResult
 	 */
 	function PostTask($task, $args)
@@ -67,14 +67,24 @@ class Celery
 		}
 		$id = uniqid('php_', TRUE);
 		$xchg = new AMQPExchange($this->connection, 'celery');
-		/**
-		 *  @todo support kwargs
-		 */
+
+		/* $args is numeric -> positional args */
+		if(array_keys($args) === range(0, count($args) - 1))
+		{
+			$kwargs = array();
+		}
+		/* $args is associative -> contains kwargs */
+		else
+		{
+			$kwargs = $args;
+			$args = array();
+		}
+                                                                            
 		$task_array = array(
 			'id' => $id,
 			'task' => $task,
 			'args' => $args,
-			'kwargs' => (object)array(),
+			'kwargs' => (object)$kwargs,
 		);
 		$task = json_encode($task_array);
 		$params = array('Content-type' => 'application/json',

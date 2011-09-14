@@ -21,8 +21,6 @@ pear install --alldeps phpunit/PHPUnit
 phpunit CeleryTest unittest.php
  */
 
-// TODO python-like API
-
 require_once('celery.php');
 
 function get_c()
@@ -139,6 +137,19 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 		$c = get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array(4,4));
+		$this->assertFalse($result->ready());
+		$this->assertNull($result->result);                                                                                 
+		$rv = $result->get();
+		$this->assertEquals(8, $rv);
+		$this->assertEquals(8, $result->result);
+		$this->assertTrue($result->successful());
+	}
+
+	public function testKwargs()
+	{                                                                
+		$c = get_c();
+
+		$result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
 		$this->assertFalse($result->ready());
 		$this->assertNull($result->result);                                                                                 
 		$rv = $result->get();
