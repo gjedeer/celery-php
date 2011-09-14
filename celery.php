@@ -38,6 +38,11 @@ class Celery
 
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672)
 	{
+		if(!class_exists('AMQPConnection'))
+		{
+            throw new CeleryException("Class AMQPConnection not found\nMake sure that AMQP extension is installed and enabled:\nhttp://www.php.net/manual/en/amqp.installation.php");
+		}
+
 		$this->connection = new AMQPConnection();
 		$this->connection->setHost($host);
 		$this->connection->setLogin($login);
