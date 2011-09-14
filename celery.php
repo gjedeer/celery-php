@@ -35,6 +35,7 @@ class CeleryTimeoutException extends CeleryException {};
 class Celery
 {
 	private $connection = null;
+	private $connection_details = array();
 
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672)
 	{
@@ -43,14 +44,27 @@ class Celery
             throw new CeleryException("Class AMQPConnection not found\nMake sure that AMQP extension is installed and enabled:\nhttp://www.php.net/manual/en/amqp.installation.php");
 		}
 
-		$this->connection = new AMQPConnection();
-		$this->connection->setHost($host);
-		$this->connection->setLogin($login);
-		$this->connection->setPassword($password);
-		$this->connection->setVhost($vhost);
-		$this->connection->setPort($port);
+		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port') as $detail)
+		{
+			$this->connection_details[$detail] = $$detail;
+		}
+
+		$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
 
 		$success = $this->connection->connect();
+		print_r($this->connection_details);
+	}
+
+	static function InitializeAMQPConnection($details)
+	{
+		$connection = new AMQPConnection();
+		$connection->setHost($details['host']);
+		$connection->setLogin($details['login']);
+		$connection->setPassword($details['password']);
+		$connection->setVhost($details['vhost']);
+		$connection->setPort($details['port']);
+
+		return $connection;
 	}
 
 	/**
@@ -95,7 +109,7 @@ class Celery
 		$success = $xchg->publish($task, 'celery', 0, $params);
 		$this->connection->disconnect();
 
-		return new AsyncResult($id, $this->connection, $task_array['task'], $args);
+		return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
 	}
 }
 
@@ -107,22 +121,32 @@ class AsyncResult
 {
 	private $task_id;
 	private $connection;
+	private $connection_details;
 	private $complete_result;
 	private $body;
 
 	/**
 	 * Don't instantiate AsyncResult yourself, used internally only
 	 * @param string $id Task ID in Celery
-	 * @param AMQPConnection $connection 
+	 * @param array $connection_details used to initialize AMQPConnection, keys are the same as args to Celery::__construct
 	 * @param string task_name
 	 * @param array task_args
 	 */
-	function __construct($id, $connection, $task_name=NULL, $task_args=NULL)
+	function __construct($id, $connection_details, $task_name=NULL, $task_args=NULL)
 	{
 		$this->task_id = $id;
-		$this->connection = $connection;
+		$this->connection = Celery::InitializeAMQPConnection($connection_details);
+		$this->connection_details = $connection_details;
 		$this->task_name = $task_name;
 		$this->task_args = $task_args;
+	}
+
+	function __wakeup()
+	{
+		if($this->connection_details)
+		{
+			$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
+		}
 	}
 
 	/**
