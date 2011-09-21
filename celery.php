@@ -51,8 +51,7 @@ class Celery
 
 		$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
 
-		$success = $this->connection->connect();
-		print_r($this->connection_details);
+		#$success = $this->connection->connect();
 	}
 
 	static function InitializeAMQPConnection($details)
@@ -75,12 +74,13 @@ class Celery
 	 */
 	function PostTask($task, $args)
 	{
+		$this->connection->connect();
 		if(!is_array($args))
 		{
 			throw new CeleryException("Args should be an array");
 		}
 		$id = uniqid('php_', TRUE);
-		$xchg = new AMQPExchange($this->connection, 'celery');
+		$xchg = new AMQPExchange($this->connection, $this->connection_details['exchange']);
 
 		/* $args is numeric -> positional args */
 		if(array_keys($args) === range(0, count($args) - 1))
@@ -105,8 +105,8 @@ class Celery
 			'Content-encoding' => 'UTF-8',
 			'immediate' => false,
 			);
-		$this->connection->connect();
-		$success = $xchg->publish($task, 'celery', 0, $params);
+                
+		$success = $xchg->publish($task, $this->connection_details['exchange'], 0, $params);
 		$this->connection->disconnect();
 
 		return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
@@ -393,3 +393,4 @@ class AsyncResult
 		return $this->get($timeout, $propagate, $interval);
 	}
 }
+
