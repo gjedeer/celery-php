@@ -47,4 +47,4 @@ Created in mere 2 days, so expect no wonders. Based on [this blog post](http://w
 
 ## SUPPORT
 
-If you need help [setting up Celery](http://massivescale.net/performance-for-developers.html), you may be interested in hiring me as a [consultant](http://massivescale.net/performance-for-developers.html).
+If you need help integrating Celery in your PHP app, you may be interested in hiring me as a [consultant](http://massivescale.net/performance-for-developers.html).
