@@ -193,6 +193,15 @@ class AsyncResult
 	}
 
 	/**
+	 * Get the Task Id
+	 * @return string
+	 */
+	 function getId()
+	 {
+	 	return $this->task_id;
+	 }
+
+	/**
 	 * Check if a task result is ready
 	 * @return bool
 	 */
