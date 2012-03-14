@@ -124,7 +124,7 @@ class AsyncResult
 	private $task_id;
 	private $connection;
 	private $connection_details;
-	private $complete_result;
+	private $complete_result; // AMQPEnvelope instance
 	private $body;
 
 	/**
@@ -167,7 +167,7 @@ class AsyncResult
 		$q = new AMQPQueue($ch);
 		$q->setName($this->task_id);
 		$q->setFlags(AMQP_AUTODELETE);
-		$q->setArgument('x-expires', 86400000);
+#		$q->setArgument('x-expires', 86400000);
 		$q->declare();
 		try
 		{
@@ -177,25 +177,32 @@ class AsyncResult
 		{
 			return false;
 		}
-		$rv = $q->consume(array(
-			'min' => 0,
-			'max' => 1,
-			'ack' => true,
-		));
-		$q->delete($this->task_id);
+
+		$message = $q->get(AMQP_AUTOACK);
+
+		if(!$message) 
+		{
+			return false;
+		}
+
+		$this->complete_result = $message;
+
+		if($message->getContentType() != 'application/json')
+		{
+			$q->delete();
+			$this->connection->disconnect();
+
+			throw new CeleryException('Response was not encoded using JSON - found ' . 
+				$message->getContentType(). 
+				' - check your CELERY_RESULT_SERIALIZER setting!');
+		}
+
+		$this->body = json_decode($message->getBody());
+
+		$q->delete();
 		$this->connection->disconnect();
 
-		if(!sizeof($rv)) return false;
-		else 
-		{
-			$this->complete_result = $rv[0];
-			if($rv[0]['Content-type'] != 'application/json')
-			{
-				throw new CeleryException('Response was not encoded using JSON - check your CELERY_RESULT_SERIALIZER setting!');
-			}
-			$this->body = json_decode($rv[0]['message_body']);
-			return $rv[0];
-		}
+		return false;
 	}
 
 	/**
