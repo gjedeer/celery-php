@@ -34,8 +34,8 @@ class CeleryTimeoutException extends CeleryException {};
  */
 class Celery
 {
-	private $connection = null;
-	private $connection_details = array();
+	private $connection = null; // AMQPConnection object
+	private $connection_details = array(); // array of strings required to connect
 
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672)
 	{
@@ -121,11 +121,11 @@ class Celery
  */
 class AsyncResult 
 {
-	private $task_id;
-	private $connection;
-	private $connection_details;
+	private $task_id; // string, queue name
+	private $connection; // AMQPConnection instance
+	private $connection_details; // array of strings required to connect
 	private $complete_result; // AMQPEnvelope instance
-	private $body;
+	private $body; // decoded array with message body (whatever Celery task returned)
 
 	/**
 	 * Don't instantiate AsyncResult yourself, used internally only
