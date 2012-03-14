@@ -80,7 +80,9 @@ class Celery
 			throw new CeleryException("Args should be an array");
 		}
 		$id = uniqid('php_', TRUE);
-		$xchg = new AMQPExchange($this->connection, $this->connection_details['exchange']);
+		$ch = new AMQPChannel($this->connection);
+		$xchg = new AMQPExchange($ch);
+		$xchg->setName($this->connection_details['exchange']);
 
 		/* $args is numeric -> positional args */
 		if(array_keys($args) === range(0, count($args) - 1))
@@ -101,8 +103,8 @@ class Celery
 			'kwargs' => (object)$kwargs,
 		);
 		$task = json_encode($task_array);
-		$params = array('Content-type' => 'application/json',
-			'Content-encoding' => 'UTF-8',
+		$params = array('content_type' => 'application/json',
+			'content_encoding' => 'UTF-8',
 			'immediate' => false,
 			);
                 
@@ -161,8 +163,12 @@ class AsyncResult
 		}
 
 		$this->connection->connect();
-		$q = new AMQPQueue($this->connection);
-		$q->declare($this->task_id, AMQP_AUTODELETE);
+		$ch = new AMQPChannel($this->connection);
+		$q = new AMQPQueue($ch);
+		$q->setName($this->task_id);
+		$q->setFlags(AMQP_AUTODELETE);
+		$q->setArgument('x-expires', 86400000);
+		$q->declare();
 		try
 		{
 			$q->bind('celeryresults', $this->task_id);
