@@ -4,6 +4,10 @@ Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php)
 
     CELERY_RESULT_EXCHANGE_TYPE = "json"
 
+*THIS IS A BRANCH WITH SUPPORT FOR PHP_AMQP < 1.0.0*. Master branch supports the current version.
+
+*Celery 2.4+ is not supported*
+
 ## POSTING TASKS                                                                                                                           
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
