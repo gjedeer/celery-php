@@ -1,13 +1,12 @@
 PHP client capable of executing [Celery](celeryproject.org) tasks and reading asynchronous results.
 
-Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following setting in Celery:
+Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following settings in Celery:
 
     CELERY_RESULT_EXCHANGE_TYPE = "json"
+	CELERY_TASK_RESULT_EXPIRES = None
 
 PHP-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
 There is a separate branch for 0.3.
-
-*There is no support for Celery 2.4. It changed its protocol since 2.3 in a way that can't be currently implemented with PHP-AMQP*
 
 ## POSTING TASKS                                                                                                                           
 
