@@ -1,4 +1,4 @@
-PHP client capable of executing [Celery](celeryproject.org) tasks and reading asynchronous results.
+PHP client capable of executing [Celery](http://celeryproject.org/) tasks and reading asynchronous results.
 
 Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following settings in Celery:
 
