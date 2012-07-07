@@ -1,16 +1,16 @@
 For FreeBSD User
 
-##Build the librabbitmq
-cd rabbitmq-c
-autoreconf -i && ./configure && gmake
-make install
+## Build the librabbitmq
+    cd rabbitmq-c
+    autoreconf -i && ./configure && gmake
+    make install
 
-##Build the amqp-php
-cd amqp-1.0.3
-phpize
-./configure --with-amqp
-make
-make install
+## Build the amqp-php
+    cd amqp-1.0.3
+    phpize
+    ./configure --with-amqp
+    make
+    make install
 
 
 
