@@ -1,0 +1,81 @@
+amqp_framing.lo amqp_framing.o: amqp_framing.c /usr/include/stdlib.h \
+  /usr/include/sys/cdefs.h /usr/include/sys/_null.h \
+  /usr/include/sys/_types.h /usr/include/machine/_types.h \
+  /usr/include/stdint.h /usr/include/machine/_stdint.h \
+  /usr/include/string.h /usr/include/strings.h /usr/include/stdio.h \
+  amqp.h amqp_framing.h amqp_private.h ../config.h unix/socket.h \
+  /usr/include/errno.h /usr/include/sys/types.h \
+  /usr/include/machine/endian.h /usr/include/sys/_pthreadtypes.h \
+  /usr/include/sys/select.h /usr/include/sys/_sigset.h \
+  /usr/include/sys/_timeval.h /usr/include/sys/timespec.h \
+  /usr/include/unistd.h /usr/include/sys/unistd.h /usr/include/sys/uio.h \
+  /usr/include/sys/_iovec.h /usr/include/sys/socket.h \
+  /usr/include/machine/param.h /usr/include/netdb.h \
+  /usr/include/netinet/in.h /usr/include/netinet6/in6.h \
+  /usr/include/netinet/tcp.h
+
+/usr/include/stdlib.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/sys/_null.h:
+
+/usr/include/sys/_types.h:
+
+/usr/include/machine/_types.h:
+
+/usr/include/stdint.h:
+
+/usr/include/machine/_stdint.h:
+
+/usr/include/string.h:
+
+/usr/include/strings.h:
+
+/usr/include/stdio.h:
+
+amqp.h:
+
+amqp_framing.h:
+
+amqp_private.h:
+
+../config.h:
+
+unix/socket.h:
+
+/usr/include/errno.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/machine/endian.h:
+
+/usr/include/sys/_pthreadtypes.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/sys/_sigset.h:
+
+/usr/include/sys/_timeval.h:
+
+/usr/include/sys/timespec.h:
+
+/usr/include/unistd.h:
+
+/usr/include/sys/unistd.h:
+
+/usr/include/sys/uio.h:
+
+/usr/include/sys/_iovec.h:
+
+/usr/include/sys/socket.h:
+
+/usr/include/machine/param.h:
+
+/usr/include/netdb.h:
+
+/usr/include/netinet/in.h:
+
+/usr/include/netinet6/in6.h:
+
+/usr/include/netinet/tcp.h:

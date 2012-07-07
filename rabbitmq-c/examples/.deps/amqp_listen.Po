@@ -1,0 +1,35 @@
+amqp_listen.o amqp_listen.o: amqp_listen.c /usr/include/stdlib.h \
+  /usr/include/sys/cdefs.h /usr/include/sys/_null.h \
+  /usr/include/sys/_types.h /usr/include/machine/_types.h \
+  /usr/include/stdio.h /usr/include/string.h /usr/include/strings.h \
+  /usr/include/stdint.h /usr/include/machine/_stdint.h \
+  ../librabbitmq/amqp.h ../librabbitmq/amqp_framing.h \
+  /usr/include/assert.h utils.h
+
+/usr/include/stdlib.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/sys/_null.h:
+
+/usr/include/sys/_types.h:
+
+/usr/include/machine/_types.h:
+
+/usr/include/stdio.h:
+
+/usr/include/string.h:
+
+/usr/include/strings.h:
+
+/usr/include/stdint.h:
+
+/usr/include/machine/_stdint.h:
+
+../librabbitmq/amqp.h:
+
+../librabbitmq/amqp_framing.h:
+
+/usr/include/assert.h:
+
+utils.h:
