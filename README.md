@@ -1,3 +1,20 @@
+For FreeBSD User
+
+##Build the librabbitmq
+cd rabbitmq-c
+autoreconf -i && ./configure && gmake
+make install
+
+##Build the amqp-php
+cd amqp-1.0.3
+phpize
+./configure --with-amqp
+make
+make install
+
+
+
+
 PHP client capable of executing [Celery](celeryproject.org) tasks and reading asynchronous results.
 
 Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following settings in Celery:
