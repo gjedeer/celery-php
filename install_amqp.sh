@@ -3,16 +3,17 @@
 # Based on http://www.php.net/manual/en/amqp.installation.php
 #
 # Required packages (debian):
-sudo apt-get install mercurial php5-dev make gcc autoconf
+sudo apt-get install git php5-dev make gcc autoconf
 
 # Install librabbitmq-c
-hg clone http://hg.rabbitmq.com/rabbitmq-c
+git clone git://github.com/alanxz/rabbitmq-c.git
 cd rabbitmq-c
-hg clone http://hg.rabbitmq.com/rabbitmq-codegen codegen
+git submodule init
+git submodule update
 autoreconf -i && ./configure && make && sudo make install
 
 # Install and compile PHP extension
-sudo pecl install amqp-beta
+sudo pecl install amqp
 
 # Problem?
 # Make sure php.ini is loading amqp.so

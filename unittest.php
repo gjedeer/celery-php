@@ -1,4 +1,5 @@
 <?php
+// phpunit CeleryTest unittest.php
 /*
  * LICENSE: beerware
  * GDR! wrote this file. As long as you retain this notice you can do whatever you want with this stuff. 
