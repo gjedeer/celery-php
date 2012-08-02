@@ -48,6 +48,7 @@ An API compatible to AsyncResult in Python is available too.
 ## ABOUT
 
 Created in mere 2 days, so expect no wonders. Based on [this blog post](http://www.toforge.com/2011/01/run-celery-tasks-from-php/) and reading Celery sources. Thanks to Skrat, author of [Celerb](https://github.com/skrat/celerb) for a tip about response encoding. Created for the needs of my consulting work at [Massive Scale](http://massivescale.net/).
+License is changed from Beerware to 2-clause BSD.
 
 ## SUPPORT
 
