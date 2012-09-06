@@ -13,7 +13,7 @@
  * @link https://github.com/gjedeer/celery-php
  *
  * @package celery-php
- * @license http://en.wikipedia.org/wiki/Beerware Beerware
+ * @license http://opensource.org/licenses/bsd-license.php 2-clause BSD
  * @author GDR! <gdr@go2.pl>
  */
 
