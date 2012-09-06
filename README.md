@@ -1,8 +1,8 @@
-PHP client capable of executing [Celery](celeryproject.org) tasks and reading asynchronous results.
+PHP client capable of executing [Celery](http://celeryproject.org/) tasks and reading asynchronous results.
 
 Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following settings in Celery:
 
-    CELERY_RESULT_EXCHANGE_TYPE = "json"
+	CELERY_RESULT_SERIALIZER = "json"
 	CELERY_TASK_RESULT_EXPIRES = None
 
 PHP-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
@@ -48,6 +48,7 @@ An API compatible to AsyncResult in Python is available too.
 ## ABOUT
 
 Created in mere 2 days, so expect no wonders. Based on [this blog post](http://www.toforge.com/2011/01/run-celery-tasks-from-php/) and reading Celery sources. Thanks to Skrat, author of [Celerb](https://github.com/skrat/celerb) for a tip about response encoding. Created for the needs of my consulting work at [Massive Scale](http://massivescale.net/).
+License is changed from Beerware to 2-clause BSD.
 
 ## SUPPORT
 
