@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-		"ext-amqp": ">=1.0.0"           
+		"ext-amqp": "*"           
     },
     "autoload": {
         "classmap": ["celery.php"]
