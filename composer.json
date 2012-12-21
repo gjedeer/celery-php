@@ -5,7 +5,7 @@
     "description": "PHP client for Celery task queue",
     "keywords": ["celery", "amqp", "task", "cron", "queue", "python"],
     "homepage": "https://github.com/gjedeer/celery-php/",
-	"license": "BSD-2-Clause",
+    "license": "BSD-2-Clause",
     "authors": [
         {
             "name": "GDR!",
@@ -15,7 +15,6 @@
         }
     ],
     "require": {
-		"ext-amqp": "*"           
     },
     "autoload": {
         "classmap": ["celery.php"]
