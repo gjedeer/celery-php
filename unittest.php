@@ -214,7 +214,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 		$c = get_c();
 
 		$result = $c->PostTask('tasks.add', array(2,2));
-        $result->forget();
+		$result->forget();
 		$result->revoke();
 	}
 
