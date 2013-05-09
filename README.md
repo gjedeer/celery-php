@@ -8,6 +8,8 @@ Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php)
 PHP-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
 There is a separate branch for 0.3.
 
+Last Celery version tested is 3.0.19.
+
 ## POSTING TASKS                                                                                                                           
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
