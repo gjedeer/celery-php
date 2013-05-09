@@ -6,7 +6,7 @@
 sudo apt-get install git php5-dev make gcc autoconf
 
 # Install librabbitmq-c
-git clone git://github.com/alanxz/rabbitmq-c.git
+git clone https://github.com/alanxz/rabbitmq-c.git
 cd rabbitmq-c
 git submodule init
 git submodule update
