@@ -1,8 +1,4 @@
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "gdr"
-BROKER_PASSWORD = "test"
-BROKER_VHOST = "wutka"
+BROKER_URL = "amqp://gdr:test@localhost:5672/wutka"
 
 CELERY_RESULT_BACKEND = "amqp"
 
