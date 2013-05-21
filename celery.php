@@ -52,6 +52,10 @@ class CeleryException extends Exception {};
  */
 class CeleryTimeoutException extends CeleryException {};
 
+require('amqp.php');
+/* TODO hack */
+$amqp = new PECLAMQPConnector();
+
 /**
  * Client for a Celery server
  * @package celery-php
@@ -60,6 +64,7 @@ class Celery
 {
 	private $connection = null; // AMQPConnection object
 	private $connection_details = array(); // array of strings required to connect
+	private $amqp = null; // AbstractAMQPConnector implementation
 
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672)
 	{
@@ -73,21 +78,18 @@ class Celery
 			$this->connection_details[$detail] = $$detail;
 		}
 
-		$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
+		/* TODO hack */
+		global $amqp;
+		$this->amqp = $amqp;
+		/* ENDHACK */
 
-		#$success = $this->connection->connect();
+		$this->connection = self::InitializeAMQPConnection($this->connection_details);
 	}
 
 	static function InitializeAMQPConnection($details)
 	{
-		$connection = new AMQPConnection();
-		$connection->setHost($details['host']);
-		$connection->setLogin($details['login']);
-		$connection->setPassword($details['password']);
-		$connection->setVhost($details['vhost']);
-		$connection->setPort($details['port']);
-
-		return $connection;
+		global $amqp; // TODO hack
+		return $amqp->GetConnectionObject($details);
 	}
 
 	/**
@@ -98,15 +100,12 @@ class Celery
 	 */
 	function PostTask($task, $args)
 	{
-		$this->connection->connect();
+		$this->amqp->Connect($this->connection);
 		if(!is_array($args))
 		{
 			throw new CeleryException("Args should be an array");
 		}
 		$id = uniqid('php_', TRUE);
-		$ch = new AMQPChannel($this->connection);
-		$xchg = new AMQPExchange($ch);
-		$xchg->setName($this->connection_details['exchange']);
 
 		/* $args is numeric -> positional args */
 		if(array_keys($args) === range(0, count($args) - 1))
@@ -131,9 +130,13 @@ class Celery
 			'content_encoding' => 'UTF-8',
 			'immediate' => false,
 			);
-                
-		$success = $xchg->publish($task, $this->connection_details['exchange'], 0, $params);
-		$this->connection->disconnect();
+
+		$success = $this->amqp->PostToExchange(
+			$this->connection,
+			$this->connection_details,
+			$task,
+			$params
+		);
 
 		return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
 	}
@@ -150,6 +153,7 @@ class AsyncResult
 	private $connection_details; // array of strings required to connect
 	private $complete_result; // AMQPEnvelope instance
 	private $body; // decoded array with message body (whatever Celery task returned)
+	private $amqp = null; // AbstractAMQPConnector implementation
 
 	/**
 	 * Don't instantiate AsyncResult yourself, used internally only
@@ -165,6 +169,10 @@ class AsyncResult
 		$this->connection_details = $connection_details;
 		$this->task_name = $task_name;
 		$this->task_args = $task_args;
+		/* TODO hack */
+		global $amqp;
+		$this->amqp = $amqp;
+		/* ENDHACK */
 	}
 
 	function __wakeup()
@@ -186,49 +194,15 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$this->connection->connect();
-		$ch = new AMQPChannel($this->connection);
-		$q = new AMQPQueue($ch);
-		$q->setName($this->task_id);
-		$q->setFlags(AMQP_AUTODELETE);
-#		$q->setArgument('x-expires', 86400000);
-		$q->declare();
-		try
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id);
+		
+		if($message !== false)
 		{
-			$q->bind('celeryresults', $this->task_id);
+			$this->complete_result = $message['complete_result'];
+			$this->body = json_decode(
+				$message['body']
+			);
 		}
-		catch(AMQPQueueException $e)
-		{
-   			$q->delete();
-			$this->connection->disconnect();
-			return false;
-		}
-
-		$message = $q->get(AMQP_AUTOACK);
-
-		if(!$message) 
-		{
-   			$q->delete();
-			$this->connection->disconnect();
-			return false;
-		}
-
-		$this->complete_result = $message;
-
-		if($message->getContentType() != 'application/json')
-		{
-			$q->delete();
-			$this->connection->disconnect();
-
-			throw new CeleryException('Response was not encoded using JSON - found ' . 
-				$message->getContentType(). 
-				' - check your CELERY_RESULT_SERIALIZER setting!');
-		}
-
-		$this->body = json_decode($message->getBody());
-
-		$q->delete();
-		$this->connection->disconnect();
 
 		return false;
 	}

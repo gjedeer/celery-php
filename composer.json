@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-		"ext-amqp": ">=1.0.0"           
+		"videlalvaro/php-amqplib": ">=2.0.0"           
     },
     "autoload": {
         "classmap": ["celery.php"]
