@@ -190,7 +190,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException CeleryTimeoutException
 	 */
-	public function testGetTimeLimit()
+	public function testzzzzGetTimeLimit()
 	{
 		$c = get_c();
 
@@ -224,6 +224,21 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 		$result = $c->PostTask('tasks.add', array(4,4));
 		$rv = $result->wait();
+		$this->assertEquals(8, $rv);
+		$this->assertEquals(8, $result->result);
+		$this->assertTrue($result->successful());
+	}
+
+	public function testSerialization()
+	{
+		$c = get_c();
+
+		$result_tmp = $c->PostTask('tasks.add_delayed', array(4,4));
+		$result_serialized = serialize($result_tmp);
+		$result = unserialize($result_serialized);
+		$this->assertFalse($result->ready());
+		$this->assertNull($result->result);                                                                                 
+		$rv = $result->get();
 		$this->assertEquals(8, $rv);
 		$this->assertEquals(8, $result->result);
 		$this->assertTrue($result->successful());
