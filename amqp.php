@@ -106,6 +106,11 @@ abstract class AbstractAMQPConnector
 	abstract function GetMessageBody($connection, $task_id);
 }
 
+/**
+ * Driver for a fast C/librabbitmq implementation of AMQP from PECL
+ * @link http://pecl.php.net/package/amqp
+ * @package celery-php
+ */
 class PECLAMQPConnector extends AbstractAMQPConnector
 {
 	function GetConnectionObject($details)
@@ -185,7 +190,5 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		);
 	}
 }
-
-echo AbstractAMQPConnector::GetBestInstalledExtensionName();
 
 ?>

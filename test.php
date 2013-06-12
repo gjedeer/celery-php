@@ -31,12 +31,12 @@
  *
  * http://massivescale.net/
  * http://gdr.geekhood.net/
- * gdr@go2.pl
+ * gdr@gdr.name
  */
 
 require_once('celery.php');
 
-$c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery');
+$c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery', 5672, 'php-amqplib');
 $result = $c->PostTask('tasks.add', array(2,2));
 #$result = $c->PostTask('tasks.fail', array());
 #echo $result;

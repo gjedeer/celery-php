@@ -145,7 +145,7 @@ class AsyncResult
 	private $task_id; // string, queue name
 	private $connection; // AMQPConnection instance
 	private $connection_details; // array of strings required to connect
-	private $complete_result; // AMQPEnvelope instance
+	private $complete_result; // Backend-dependent message instance (AMQPEnvelope or PhpAmqpLib\Message\AMQPMessage)
 	private $body; // decoded array with message body (whatever Celery task returned)
 	private $amqp = null; // AbstractAMQPConnector implementation
 
@@ -297,6 +297,22 @@ class AsyncResult
 	 */
 	function get($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
+		/**
+		 * This is an ugly workaround for PHP-AMQPLIB lack of support for fractional wait time
+		 * @TODO remove the whole 'if' when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80
+		 */
+		if(property_exists($this->connection, 'wait_timeout'))
+		{
+			if($this->connection->wait_timeout < $interval)
+			{
+				$interval = $this->connection->wait_timeout;
+			}
+			else
+			{
+				$interval -= $this->connection->wait_timeout;
+			}
+		}
+
 		$interval_us = (int)($interval * 1000000);
 		$iteration_limit = (int)($timeout / $interval);
 
