@@ -11,7 +11,7 @@ if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
 	require_once('amqplibconnector.php');
 }
 
-@include_once('amqppeclconnector');
+require_once('amqppeclconnector.php');
 
 /**
  * Abstraction for AMQP client libraries
@@ -100,7 +100,7 @@ abstract class AbstractAMQPConnector
 
 	/**
 	 * Return result of task execution for $task_id
-	 * @param AMQPConnection $connection Connection object
+	 * @param object $connection Backend-specific connection object returned by GetConnectionObject()
 	 * @param string $task_id Celery task identifier
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
 	 * 			or false if result not ready yet

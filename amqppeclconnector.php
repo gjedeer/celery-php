@@ -9,6 +9,11 @@ require_once('amqp.php');
  */
 class PECLAMQPConnector extends AbstractAMQPConnector
 {
+	/**
+	 * Return AMQPConnection object passed to all other calls
+	 * @param array $details Array of connection details
+	 * @return AMQPConnection
+	 */
 	function GetConnectionObject($details)
 	{
 		$connection = new AMQPConnection();
@@ -21,11 +26,22 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		return $connection;
 	}
 
+	/**
+	 * Initialize connection on a given connection object
+	 * @return NULL
+	 */
 	function Connect($connection)
 	{
 		$connection->connect();
 	}
 
+	/**
+	 * Post a task to exchange specified in $details
+	 * @param AMQPConnection $connection Connection object
+	 * @param array $details Array of connection details
+	 * @param string $task JSON-encoded task
+	 * @param array $params AMQP message parameters
+	 */
 	function PostToExchange($connection, $details, $task, $params)
 	{
 		$ch = new AMQPChannel($connection);
@@ -38,6 +54,13 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		return $success;
 	}
 
+	/**
+	 * Return result of task execution for $task_id
+	 * @param AMQPConnection $connection Connection object
+	 * @param string $task_id Celery task identifier
+	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPEnvelope object)
+	 * 			or false if result not ready yet
+	 */
 	function GetMessageBody($connection, $task_id)
 	{
 		$this->Connect($connection);
@@ -45,7 +68,6 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$q = new AMQPQueue($ch);
 		$q->setName($task_id);
 		$q->setFlags(AMQP_AUTODELETE);
-#		$q->setArgument('x-expires', 86400000);
 		$q->declare();
 		try
 		{

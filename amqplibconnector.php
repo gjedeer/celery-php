@@ -25,6 +25,9 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 */
 	private $message = null;
 
+	/**
+	 * AMQPChannel object cached for subsequent GetMessageBody() calls
+	 */
 	private $receiving_channel = null;
 
 	function GetConnectionObject($details)
@@ -38,9 +41,9 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		);
 	}
 
+	/* NO-OP: not required in PhpAmqpLib */
 	function Connect($connection)
 	{
-		/* NO-OP: not required in PhpAmqpLib */
 	}
 
 	function PostToExchange($connection, $details, $task, $params)
@@ -88,6 +91,13 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		$this->message = $msg;
 	}
 
+	/**
+	 * Return result of task execution for $task_id
+	 * @param object $connection AMQPConnection object
+	 * @param string $task_id Celery task identifier
+	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPMessage object)
+	 * 			or false if result not ready yet
+	 */
 	function GetMessageBody($connection, $task_id)
 	{
 		if(!$this->receiving_channel)
@@ -128,6 +138,10 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		/* Check if the callback function saved something */
 		if($this->message)
 		{
+			$this->receiving_channel->queue_delete($task_id);
+			$this->receiving_channel->close();
+			$connection->close();
+
 			return array(
 				'complete_result' => $this->message,
 				'body' => $this->message->body, // JSON message body
