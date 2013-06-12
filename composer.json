@@ -1,6 +1,6 @@
 {
     "name": "massivescale/celery-php",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "type": "library",
     "description": "PHP client for Celery task queue",
     "keywords": ["celery", "amqp", "task", "cron", "queue", "python"],
