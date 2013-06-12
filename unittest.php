@@ -62,7 +62,7 @@ function get_c()
 		'celery', /* exchange */
 		'celery', /* binding */
 		5672, /* port */
-		'php-amqplib' /* connector */
+ //   	'php-amqplib' /* connector */
 	);
 }
 
