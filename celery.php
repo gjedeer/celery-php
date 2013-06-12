@@ -53,8 +53,6 @@ class CeleryException extends Exception {};
 class CeleryTimeoutException extends CeleryException {};
 
 require('amqp.php');
-/* TODO hack */
-$amqp = new PECLAMQPConnector();
 
 /**
  * Client for a Celery server
@@ -66,29 +64,30 @@ class Celery
 	private $connection_details = array(); // array of strings required to connect
 	private $amqp = null; // AbstractAMQPConnector implementation
 
-	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672)
+	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false)
 	{
 		if(!class_exists('AMQPConnection'))
 		{
             throw new CeleryException("Class AMQPConnection not found\nMake sure that AMQP extension is installed and enabled:\nhttp://www.php.net/manual/en/amqp.installation.php");
 		}
 
-		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port') as $detail)
+		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector') as $detail)
 		{
 			$this->connection_details[$detail] = $$detail;
 		}
 
-		/* TODO hack */
-		global $amqp;
-		$this->amqp = $amqp;
-		/* ENDHACK */
+		if($connector === false)
+		{
+			$this->connection_details['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName();
+		}
+		$this->amqp = AbstractAMQPConnector::GetConcrete($this->connection_details['connector']);
 
 		$this->connection = self::InitializeAMQPConnection($this->connection_details);
 	}
 
 	static function InitializeAMQPConnection($details)
 	{
-		global $amqp; // TODO hack
+		$amqp = AbstractAMQPConnector::GetConcrete($details['connector']);
 		return $amqp->GetConnectionObject($details);
 	}
 
@@ -169,10 +168,7 @@ class AsyncResult
 		$this->connection_details = $connection_details;
 		$this->task_name = $task_name;
 		$this->task_args = $task_args;
-		/* TODO hack */
-		global $amqp;
-		$this->amqp = $amqp;
-		/* ENDHACK */
+		$this->amqp = AbstractAMQPConnector::GetConcrete($connection_details['connector']);
 	}
 
 	function __wakeup()

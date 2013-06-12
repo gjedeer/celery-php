@@ -54,7 +54,16 @@ require_once('celery.php');
 
 function get_c()
 {
-	return new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery');
+	return new Celery(
+		'localhost', /* Server */
+		'gdr', /* Login */ 
+		'test', /* Password */
+		'wutka', /* vhost */
+		'celery', /* exchange */
+		'celery', /* binding */
+		5672, /* port */
+		'php-amqplib' /* connector */
+	);
 }
 
 class CeleryTest extends PHPUnit_Framework_TestCase
