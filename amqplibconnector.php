@@ -86,7 +86,6 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	function Consume($msg)
 	{
 		$this->message = $msg;
-		echo "===\nGOT MESSAGE\n===";
 	}
 
 	function GetMessageBody($connection, $task_id)
@@ -123,7 +122,6 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		}
 		catch(PhpAmqpLib\Exception\AMQPTimeoutException $e)
 		{
-			echo "Timeout";
 			return false;
 		}
 
