@@ -305,7 +305,7 @@ class AsyncResult
 		{
 			if($this->connection->wait_timeout < $interval)
 			{
-				$interval = $this->connection->wait_timeout;
+				$interval = 0;
 			}
 			else
 			{
@@ -328,7 +328,7 @@ class AsyncResult
 
         if(!$this->isReady())
         {
-                throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after 10 seconds', $this->task_name, json_encode($this->task_args)), 4);
+                throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
         }
 
         return $this->getResult();

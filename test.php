@@ -37,13 +37,14 @@
 require_once('celery.php');
 
 $c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery', 5672, 'php-amqplib');
-$result = $c->PostTask('tasks.add', array(2,2));
+#$result = $c->PostTask('tasks.add', array(2,2));
+$result = $c->PostTask('tasks.delayed', array());
 #$result = $c->PostTask('tasks.fail', array());
 #echo $result;
 
 while(!$result->isReady())
 {
-	sleep(1);
+#	sleep(1);
 	echo '...';
 }
 
