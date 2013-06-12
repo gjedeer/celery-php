@@ -10,6 +10,8 @@ There is a separate branch for 0.3.
 
 Last Celery version tested is 3.0.19.
 
+*Don't want to compile a PECL extension? Try the expermiental [pure PHP](https://github.com/gjedeer/celery-php/tree/php-amqplib) branch!*
+
 ## POSTING TASKS                                                                                                                           
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
