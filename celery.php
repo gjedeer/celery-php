@@ -192,7 +192,7 @@ class AsyncResult
 		$q->setName($this->task_id);
 		$q->setFlags(AMQP_AUTODELETE);
 #		$q->setArgument('x-expires', 86400000);
-		$q->declare();
+		$q->declareQueue();
 		try
 		{
 			$q->bind('celeryresults', $this->task_id);
