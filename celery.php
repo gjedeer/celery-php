@@ -204,6 +204,15 @@ class AsyncResult
 	}
 
 	/**
+	 * Helper function to return current microseconds time as float 
+	 */
+	static private function getmicrotime()
+	{
+		    list($usec, $sec) = explode(" ",microtime()); 
+			return ((float)$usec + (float)$sec); 
+	}
+
+	/**
 	 * Get the Task Id
 	 * @return string
 	 */
@@ -306,6 +315,7 @@ class AsyncResult
 		 * This is an ugly workaround for PHP-AMQPLIB lack of support for fractional wait time
 		 * @TODO remove the whole 'if' when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80
 		 */
+		$original_interval = $interval;
 		if(property_exists($this->connection, 'wait_timeout'))
 		{
 			if($this->connection->wait_timeout < $interval)
@@ -319,9 +329,10 @@ class AsyncResult
 		}
 
 		$interval_us = (int)($interval * 1000000);
-		$iteration_limit = (int)($timeout / $interval);
+		$iteration_limit = ceil($timeout / $original_interval);
 
-        for($i = 0; $i < $iteration_limit; $i++)
+		$start_time = self::getmicrotime();
+		while(self::getmicrotime() - $start_time < $timeout)
         {
                 if($this->isReady())
                 {

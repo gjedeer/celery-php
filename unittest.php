@@ -63,6 +63,7 @@ function get_c()
 		'celery', /* binding */
 		5672, /* port */
     	'php-amqplib' /* connector */
+#    	'pecl' /* connector */
 	);
 }
 
