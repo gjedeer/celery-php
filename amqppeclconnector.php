@@ -48,7 +48,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$xchg = new AMQPExchange($ch);
 		$xchg->setName($details['exchange']);
 
-		$success = $xchg->publish($task, $details['exchange'], 0, $params);
+		$success = $xchg->publish($task, $details['binding'], 0, $params);
 		$connection->disconnect();
 
 		return $success;
