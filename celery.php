@@ -64,9 +64,9 @@ class Celery
 	private $connection_details = array(); // array of strings required to connect
 	private $amqp = null; // AbstractAMQPConnector implementation
 
-	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false)
+	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false)
 	{
-		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector') as $detail)
+		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages') as $detail)
 		{
 			$this->connection_details[$detail] = $$detail;
 		}
@@ -124,6 +124,11 @@ class Celery
 			'content_encoding' => 'UTF-8',
 			'immediate' => false,
 			);
+
+		if($this->connection_details['persistent_messages'])
+		{
+			$params['delivery_mode'] = 2;
+		}
 
 		$success = $this->amqp->PostToExchange(
 			$this->connection,
