@@ -132,7 +132,7 @@ class Celery
 			'immediate' => false,
 			);
                 
-		$success = $xchg->publish($task, $this->connection_details['exchange'], 0, $params);
+		$success = $xchg->publish($task, $this->connection_details['binding'], 0, $params);
 		$this->connection->disconnect();
 
 		return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
