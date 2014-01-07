@@ -78,6 +78,8 @@ class Celery
 		$this->amqp = AbstractAMQPConnector::GetConcrete($this->connection_details['connector']);
 
 		$this->connection = self::InitializeAMQPConnection($this->connection_details);
+
+		$this->amqp->Connect($this->connection);
 	}
 
 	static function InitializeAMQPConnection($details)
@@ -92,9 +94,8 @@ class Celery
 	 * @param array $args Array of arguments (kwargs call when $args is associative)
 	 * @return AsyncResult
 	 */
-	function PostTask($task, $args)
+	function PostTask($task, $args, $async_result=true)
 	{
-		$this->amqp->Connect($this->connection);
 		if(!is_array($args))
 		{
 			throw new CeleryException("Args should be an array");
@@ -137,7 +138,11 @@ class Celery
 			$params
 		);
 
-		return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
+		if ($async_result) {
+			return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
+		} else {
+			return true;
+		}
 	}
 }
 

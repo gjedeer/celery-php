@@ -79,7 +79,6 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		$ch->basic_publish($msg, $details['exchange']);
 
 		$ch->close();
-		$connection->close();
 	}
 
 	/**
