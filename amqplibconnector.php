@@ -106,7 +106,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 			$ch->queue_declare(
 				$task_id, 				/* queue name */
 				false,					/* passive */
-				false,					/* durable */
+				true,					/* durable */
 				false,					/* exclusive */
 				true					/* auto_delete */
 			);

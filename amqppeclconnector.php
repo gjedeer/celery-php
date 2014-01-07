@@ -67,7 +67,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$ch = new AMQPChannel($connection);
 		$q = new AMQPQueue($ch);
 		$q->setName($task_id);
-		$q->setFlags(AMQP_AUTODELETE);
+		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
 		$q->declare();
 		try
 		{
