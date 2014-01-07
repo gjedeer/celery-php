@@ -25,7 +25,7 @@ abstract class AbstractAMQPConnector
 	 * @param string $name Name of desired concrete object: 'pecl', 'php-amqplib' or false: autodetect
 	 * @return AbstractAMQPConnector concrete object implementing AbstractAMQPConnector interface
 	 */
-	function GetConcrete($name = false)
+	static function GetConcrete($name = false)
 	{
 		if($name === false)
 		{
