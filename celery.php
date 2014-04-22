@@ -73,29 +73,18 @@ class Celery
 			$this->connection_details[$detail] = $$detail;
 		}
 
-		$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
+	        $this->connection = new AMQPConnection($this->connection_details);
 
 		#$success = $this->connection->connect();
 	}
 
-	static function InitializeAMQPConnection($details)
-	{
-		$connection = new AMQPConnection();
-		$connection->setHost($details['host']);
-		$connection->setLogin($details['login']);
-		$connection->setPassword($details['password']);
-		$connection->setVhost($details['vhost']);
-		$connection->setPort($details['port']);
-
-		return $connection;
-	}
-
-	/**
-	 * Post a task to Celery
-	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
-	 * @param array $args Array of arguments (kwargs call when $args is associative)
-	 * @return AsyncResult
-	 */
+    /**
+     * Post a task to Celery
+     * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
+     * @param array $args Array of arguments (kwargs call when $args is associative)
+     * @throws CeleryException
+     * @return AsyncResult
+     */
 	function PostTask($task, $args)
 	{
 		$this->connection->connect();
@@ -161,7 +150,7 @@ class AsyncResult
 	function __construct($id, $connection_details, $task_name=NULL, $task_args=NULL)
 	{
 		$this->task_id = $id;
-		$this->connection = Celery::InitializeAMQPConnection($connection_details);
+	        $this->connection = new AMQPConnection($connection_details);
 		$this->connection_details = $connection_details;
 		$this->task_name = $task_name;
 		$this->task_args = $task_args;
@@ -171,7 +160,7 @@ class AsyncResult
 	{
 		if($this->connection_details)
 		{
-			$this->connection = Celery::InitializeAMQPConnection($this->connection_details);
+        	    $this->connection = new AMQPConnection($this->connection_details);
 		}
 	}
 
