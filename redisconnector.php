@@ -6,9 +6,7 @@
  * Time: 15:22
  */
 
-require 'predis/autoload.php';
 Predis\Autoloader::register();
-
 
 class RedisConnector extends AbstractAMQPConnector {
 
@@ -35,11 +33,11 @@ class RedisConnector extends AbstractAMQPConnector {
     }
 
     public function toStr($var){
-        return CJSON::encode($var);
+        return json_encode($var);
     }
 
     public function toDict($raw_json) {
-        return CJSON::decode($raw_json);
+        return json_decode($raw_json, TRUE);
     }
 
     public function PostToExchange($connection, $details, $task, $params) {
@@ -59,6 +57,7 @@ class RedisConnector extends AbstractAMQPConnector {
             'delivery_tag'  => $body['id']
         ];
         $connection->lPush($details['exchange'], $this->toStr($message));
+		return TRUE;
     }
 
     public function Connect($connection) {
