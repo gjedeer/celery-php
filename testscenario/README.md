@@ -7,6 +7,6 @@
 ## Running
 
 	cd testscenario
-	celery worker
+	celery worker -l DEBUG -c 20
 	# In another terminal
-	phpunit CeleryTest unittest.php
+	phpunit Tests

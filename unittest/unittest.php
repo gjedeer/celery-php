@@ -38,50 +38,32 @@
 /*
  * INSTALL:
 sudo apt-get remove phpunit
-sudo pear channel-discover pear.phpunit.de
-sudo pear channel-discover pear.symfony-project.com
-sudo pear channel-discover components.ez.no
-sudo pear update-channels
-sudo pear upgrade-all
-sudo pear install --alldeps phpunit/PHPUnit
-sudo pear install --force --alldeps phpunit/PHPUnit
+composer global require 'phpunit/phpunit'
 
  * RUN:
-phpunit CeleryTest unittest.php
+ phpunit unittest
+#or:
+ phpunit CeleryAMQPLibTest unittest/CeleryAMQPLibTest.php
  */
 
 require_once('celery.php');
 
-function get_c()
-{
-	return new Celery(
-		'localhost', /* Server */
-		'gdr', /* Login */ 
-		'test', /* Password */
-		'wutka', /* vhost */
-		'celery', /* exchange */
-		'celery', /* binding */
-		5672, /* port */
-    	'php-amqplib' /* connector */
-#    	'pecl' /* connector */
-	);
-}
 
-class CeleryTest extends PHPUnit_Framework_TestCase
+abstract class CeleryTest extends PHPUnit_Framework_TestCase
 {
 	/**
 	 * @expectedException CeleryException
 	 */
 	public function testArgsValidation()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$c->PostTask('task.test', 'arg');
 	}
 
 	public function testCorrectOperation()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add', array(2,2));
 
@@ -104,7 +86,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testFailingOperation()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.fail', array());
 
@@ -130,7 +112,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testPrematureGet()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$result->isSuccess();
@@ -141,7 +123,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testPrematureGetTraceback()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$result->getTraceback();
@@ -152,7 +134,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testPrematureGetResult()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$result->getResult();
@@ -160,7 +142,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testFailed()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.fail', array());
 		$result->get();
@@ -173,7 +155,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGet()
 	{                                                                
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array(4,4));
 #		$this->assertFalse($result->ready()); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80
@@ -186,7 +168,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testKwargs()
 	{                                                                
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
 #		$this->assertFalse($result->ready()); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80
@@ -202,7 +184,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testzzzzGetTimeLimit()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$result->get(1, TRUE, 0.1);
@@ -210,7 +192,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testStateProperty()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.delayed', array());
 		$this->assertEquals($result->state, 'PENDING');
@@ -221,7 +203,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 	/* NO-OP functions should not fail */
 	public function testForget()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add', array(2,2));
 		$result->forget();
@@ -230,7 +212,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testWait()
 	{                                                                
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add', array(4,4));
 		$rv = $result->wait();
@@ -241,7 +223,7 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 
 	public function testSerialization()
 	{
-		$c = get_c();
+		$c = $this->get_c();
 
 		$result_tmp = $c->PostTask('tasks.add_delayed', array(4,4));
 		$result_serialized = serialize($result_tmp);
@@ -252,3 +234,4 @@ class CeleryTest extends PHPUnit_Framework_TestCase
 		$this->assertTrue($result->successful());
 	}
 }
+
