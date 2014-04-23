@@ -7,6 +7,6 @@
 ## Running
 
 	cd testscenario
-	celeryd
+	celery worker
 	# In another terminal
 	phpunit CeleryTest unittest.php
