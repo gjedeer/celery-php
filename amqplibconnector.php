@@ -79,6 +79,10 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		$ch->basic_publish($msg, $details['exchange']);
 
 		$ch->close();
+
+		/* Satisfy Celery::PostTask() error checking */
+		/* TODO: catch some exceptions? Which ones? */
+		return TRUE; 
 	}
 
 	/**

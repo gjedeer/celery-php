@@ -95,6 +95,7 @@ abstract class AbstractAMQPConnector
 	 * @param array $details Array of connection details
 	 * @param string $task JSON-encoded task
 	 * @param array $params AMQP message parameters
+	 * @return bool true if posted successfuly
 	 */
 	abstract function PostToExchange($connection, $details, $task, $params);
 
