@@ -1,3 +1,5 @@
+## THIS BRANCH IS OUTDATED NOW - PLEASE USE THE NEW MASTER
+
 PHP client capable of executing [Celery](http://celeryproject.org/) tasks and reading asynchronous results.
 
 Requires [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) and the following settings in Celery:
