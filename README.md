@@ -8,9 +8,9 @@ Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) or 
 PECL-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
 There is a separate branch for 0.3.
 
-PHP-amqplib 2.0.2 is supported. No older versions have been tested.
+Last PHP-amqplib version tested is 2.2.6.
 
-Last Celery version tested is 3.0.19.
+Last Celery version tested is 3.1.11
 
 ## POSTING TASKS                                                                                                                           
 
