@@ -51,6 +51,7 @@ class CeleryException extends Exception {};
  * @package celery-php
  */
 class CeleryTimeoutException extends CeleryException {};
+class CeleryPublishException extends CeleryException {};
 
 require('amqp.php');
 
@@ -138,9 +139,17 @@ class Celery
 			$params
 		);
 
-		if ($async_result) {
+        if(!$success) 
+        {
+           throw CeleryPublishException();
+        }
+
+        if($async_result) 
+        {
 			return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
-		} else {
+        } 
+        else 
+        {
 			return true;
 		}
 	}
