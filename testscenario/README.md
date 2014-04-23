@@ -8,5 +8,10 @@
 
 	cd testscenario
 	celery worker -l DEBUG -c 20
+
 	# In another terminal
-	phpunit Tests
+	cd testscenario
+	celery worker -l DEBUG -c 20 --config=celeryredisconfig
+
+	# In another terminal
+	phpunit testscenario
