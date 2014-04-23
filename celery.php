@@ -141,7 +141,7 @@ class Celery
 
         if(!$success) 
         {
-           throw CeleryPublishException();
+           throw new CeleryPublishException();
         }
 
         if($async_result) 
