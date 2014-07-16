@@ -68,10 +68,10 @@ abstract class AbstractAMQPConnector
 	 */
 	static function GetBestInstalledExtensionName($ssl = false)
 	{
-    if($ssl === true) //pecl doesn't support ssl
-    {
-      return 'php-amqplib-ssl';
-    }
+		if($ssl === true) //pecl doesn't support ssl
+		{
+			return 'php-amqplib-ssl';
+		}
 		elseif(class_exists('AMQPConnection') && extension_loaded('amqp'))
 		{
 			return 'pecl';
