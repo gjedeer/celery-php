@@ -21,7 +21,7 @@ class AMQPLibConnectorSsl extends AMQPLibConnector
 			$details['login'],
 			$details['password'],
 			$details['vhost'],
-      $details['ssl_options']
+			$details['ssl_options']
 		);
 	}
 }

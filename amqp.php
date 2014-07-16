@@ -9,7 +9,7 @@
 if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
 {
 	require_once('amqplibconnector.php');
-  require_once('amqplibconnectorssl.php');
+	require_once('amqplibconnectorssl.php');
 
 }
 
@@ -52,10 +52,10 @@ abstract class AbstractAMQPConnector
 		{
 			return new AMQPLibConnector();
 		}
-    elseif($name == 'php-amqplib-ssl')
-    {
-      return new AMQPLibConnectorSsl();
-    }
+		elseif($name == 'php-amqplib-ssl')
+		{
+			return new AMQPLibConnectorSsl();
+		}
 		else
 		{
 			throw new Exception('Unknown extension name ' . $name);

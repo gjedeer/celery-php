@@ -67,7 +67,7 @@ class Celery
 
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $ssl_options = array() )
 	{
-    $ssl = !empty($ssl_options);
+		$ssl = !empty($ssl_options);
 		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'ssl_options') as $detail)
 		{
 			$this->connection_details[$detail] = $$detail;
