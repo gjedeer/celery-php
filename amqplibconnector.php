@@ -1,7 +1,6 @@
 <?php
 
 require_once('amqp.php');
-require_once('vendor/autoload.php');
 
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -76,7 +75,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 			$params
 		);
 
-		$ch->basic_publish($msg, $details['exchange']);
+		$ch->basic_publish($msg, $details['exchange'],$details['routing_key']);
 
 		$ch->close();
 	}
@@ -94,21 +93,28 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * Return result of task execution for $task_id
 	 * @param object $connection AMQPConnection object
 	 * @param string $task_id Celery task identifier
+	 * @param int $expire expire time result queue, milliseconds
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPMessage object)
 	 * 			or false if result not ready yet
 	 */
-	function GetMessageBody($connection, $task_id)
+	function GetMessageBody($connection, $task_id,$expire=0)
 	{
 		if(!$this->receiving_channel)
 		{
 			$ch = $connection->channel();
+            $expire_args = null;
+            if(!empty($expire)){
+                $expire_args = array("x-expires"=>array("I",$expire));
+            }
 
 			$ch->queue_declare(
 				$task_id, 				/* queue name */
 				false,					/* passive */
-				false,					/* durable */
+				true,					/* durable */
 				false,					/* exclusive */
-				true					/* auto_delete */
+				true,					/* auto_delete */
+                false,                  /*no wait*/
+                $expire_args
 			);
 
 			$ch->queue_bind($task_id, 'celeryresults');
