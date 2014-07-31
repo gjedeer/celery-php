@@ -60,6 +60,7 @@ abstract class AbstractAMQPConnector
 		elseif($name == 'php-amqplib-ssl')
 		{
 			return new AMQPLibConnectorSsl();
+		}
 		elseif($name == 'redis')
 		{
 			return new RedisConnector();
