@@ -17,6 +17,20 @@ Last Celery version tested is 3.1.11
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
 
+## CONNECTING VIA SSL
+Connecting to a RabbitMQ server that requires SSL is currently only possible via PHP-amqplib to do so you'll need to
+create a celery object with ssl options:
+
+	$ssl_options = array(
+      'cafile' => 'PATH_TO_CA_CERT_FILE',
+      'verify_peer' => true,
+      'passphrase' => 'LOCAL_CERT_PASSPHRASE',
+      'local_cert' => 'PATH_TO_COMBINED_CLIENT_CERT_KEY',
+      'CN_match' => 'CERT_COMMON_NAME'
+	);
+
+	$c = new Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
+
 ## READING ASYNC RESULTS
 
 	while(!$result->isReady())

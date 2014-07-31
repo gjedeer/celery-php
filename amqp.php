@@ -9,6 +9,8 @@
 if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
 {
 	require_once('amqplibconnector.php');
+	require_once('amqplibconnectorssl.php');
+
 }
 
 require_once('amqppeclconnector.php');
@@ -50,6 +52,10 @@ abstract class AbstractAMQPConnector
 		{
 			return new AMQPLibConnector();
 		}
+		elseif($name == 'php-amqplib-ssl')
+		{
+			return new AMQPLibConnectorSsl();
+		}
 		else
 		{
 			throw new Exception('Unknown extension name ' . $name);
@@ -60,9 +66,13 @@ abstract class AbstractAMQPConnector
 	 * Return name of best available AMQP connector library
 	 * @return string Name of available library or 'unknown'
 	 */
-	static function GetBestInstalledExtensionName()
+	static function GetBestInstalledExtensionName($ssl = false)
 	{
-		if(class_exists('AMQPConnection') && extension_loaded('amqp'))
+		if($ssl === true) //pecl doesn't support ssl
+		{
+			return 'php-amqplib-ssl';
+		}
+		elseif(class_exists('AMQPConnection') && extension_loaded('amqp'))
 		{
 			return 'pecl';
 		}
