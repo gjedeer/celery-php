@@ -1,7 +1,5 @@
 <?php
 
-/* TODO documentation is completely missing */
-
 /* Include Composer installed packages if available */
 @include_once('vendor/autoload.php');
 
@@ -13,6 +11,13 @@ if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
 
 }
 
+/* Include only if predis available */
+if(class_exists('Predis\Autoloader'))
+{
+	require_once('redisconnector.php');
+}
+
+/* Including the PECL connector never fails */
 require_once('amqppeclconnector.php');
 
 /**
@@ -55,6 +60,9 @@ abstract class AbstractAMQPConnector
 		elseif($name == 'php-amqplib-ssl')
 		{
 			return new AMQPLibConnectorSsl();
+		elseif($name == 'redis')
+		{
+			return new RedisConnector();
 		}
 		else
 		{

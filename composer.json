@@ -15,7 +15,8 @@
         }
     ],
     "require": {
-		"videlalvaro/php-amqplib": ">=2.0.0"           
+		"videlalvaro/php-amqplib": ">=2.0.0",
+        "predis/predis": "0.8.5"           
     },
     "autoload": {
         "classmap": ["celery.php"]
