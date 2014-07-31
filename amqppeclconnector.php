@@ -68,7 +68,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$q = new AMQPQueue($ch);
 		$q->setName($task_id);
 		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
-		$q->declare();
+		$q->declareQueue();
 		try
 		{
 			$q->bind('celeryresults', $task_id);
