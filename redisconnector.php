@@ -149,7 +149,8 @@ class RedisConnector extends AbstractAMQPConnector {
             'scheme' => 'tcp',
             'host'   => $details['host'],
             'port'   => $details['port'],
-            'database' => $details['vhost']
+            'database' => $details['vhost'],
+            'password' => empty($details['password']) ? null : $details['password']
         ]);
         return $connect;
     }
