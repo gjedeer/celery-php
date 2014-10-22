@@ -1,6 +1,6 @@
 PHP client capable of executing [Celery](http://celeryproject.org/) tasks and reading asynchronous results.
 
-Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) or the [PHP AMQP implementation](https://github.com/videlalvaro/php-amqplib) and the following settings in Celery:
+Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php), the [PHP AMQP implementation](https://github.com/videlalvaro/php-amqplib) or Redis and the following settings in Celery:
 
 	CELERY_RESULT_SERIALIZER = "json"
 	CELERY_TASK_RESULT_EXPIRES = None
@@ -8,14 +8,28 @@ Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php) or 
 PECL-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
 There is a separate branch for 0.3.
 
-PHP-amqplib 2.0.2 is supported. No older versions have been tested.
+Last PHP-amqplib version tested is 2.2.6.
 
-Last Celery version tested is 3.0.19.
+Last Celery version tested is 3.1.11
 
 ## POSTING TASKS                                                                                                                           
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
+
+## CONNECTING VIA SSL
+Connecting to a RabbitMQ server that requires SSL is currently only possible via PHP-amqplib to do so you'll need to
+create a celery object with ssl options:
+
+	$ssl_options = array(
+      'cafile' => 'PATH_TO_CA_CERT_FILE',
+      'verify_peer' => true,
+      'passphrase' => 'LOCAL_CERT_PASSPHRASE',
+      'local_cert' => 'PATH_TO_COMBINED_CLIENT_CERT_KEY',
+      'CN_match' => 'CERT_COMMON_NAME'
+	);
+
+	$c = new Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
 
 ## READING ASYNC RESULTS
 

@@ -65,16 +65,17 @@ class Celery
 	private $connection_details = array(); // array of strings required to connect
 	private $amqp = null; // AbstractAMQPConnector implementation
 
-	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false)
+	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
 	{
-		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages') as $detail)
+		$ssl = !empty($ssl_options);
+		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options') as $detail)
 		{
 			$this->connection_details[$detail] = $$detail;
 		}
 
 		if($connector === false)
 		{
-			$this->connection_details['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName();
+			$this->connection_details['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName($ssl);
 		}
 		$this->amqp = AbstractAMQPConnector::GetConcrete($this->connection_details['connector']);
 
@@ -95,7 +96,7 @@ class Celery
 	 * @param array $args Array of arguments (kwargs call when $args is associative)
 	 * @return AsyncResult
 	 */
-	function PostTask($task, $args, $async_result=true)
+	function PostTask($task, $args, $async_result=true,$routing_key="celery")
 	{
 		if(!is_array($args))
 		{
@@ -131,6 +132,8 @@ class Celery
 		{
 			$params['delivery_mode'] = 2;
 		}
+
+        $this->connection_details['routing_key'] = $routing_key;
 
 		$success = $this->amqp->PostToExchange(
 			$this->connection,
@@ -204,7 +207,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire']);
 		
 		if($message !== false)
 		{
