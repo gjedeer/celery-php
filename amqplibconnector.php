@@ -57,7 +57,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * Sadly, this can't be set to zero to achieve complete asynchronity
 	 * @TODO change to 0.1 when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80 
 	 */
-    public $wait_timeout = 1;
+	public $wait_timeout = 1;
 
 	/**
 	 * PhpAmqpLib\Message\AMQPMessage object received from the queue
@@ -138,7 +138,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * @param object $connection AMQPConnection object
 	 * @param string $task_id Celery task identifier
 	 * @param int $expire expire time result queue, milliseconds
-     * @param boolean $removeMessageFromQueue whether to remove message from queue
+	 * @param boolean $removeMessageFromQueue whether to remove message from queue
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPMessage object)
 	 * 			or false if result not ready yet
 	 */
@@ -147,10 +147,10 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		if(!$this->receiving_channel)
 		{
 			$ch = $connection->channel();
-            $expire_args = null;
-            if(!empty($expire)){
-                $expire_args = array("x-expires"=>array("I",$expire));
-            }
+			$expire_args = null;
+			if(!empty($expire)){
+				$expire_args = array("x-expires"=>array("I",$expire));
+			}
 
 			$ch->queue_declare(
 				$task_id, 				/* queue name */
@@ -158,8 +158,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
 				true,					/* durable */
 				false,					/* exclusive */
 				true,					/* auto_delete */
-                false,                  /*no wait*/
-                $expire_args
+				false,                  /*no wait*/
+				$expire_args
 			);
 
 			$ch->queue_bind($task_id, 'celeryresults');
@@ -188,9 +188,9 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		/* Check if the callback function saved something */
 		if($this->message)
 		{
-            if ($removeMessageFromQueue) {
-                $this->receiving_channel->queue_delete($task_id);
-            }
+			if ($removeMessageFromQueue) {
+				$this->receiving_channel->queue_delete($task_id);
+			}
 			$this->receiving_channel->close();
 			$connection->close();
 

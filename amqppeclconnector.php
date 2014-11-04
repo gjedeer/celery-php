@@ -58,7 +58,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 * Return result of task execution for $task_id
 	 * @param AMQPConnection $connection Connection object
 	 * @param string $task_id Celery task identifier
-     * @param boolean $removeMessageFromQueue whether to remove message from queue
+	 * @param boolean $removeMessageFromQueue whether to remove message from queue
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPEnvelope object)
 	 * 			or false if result not ready yet
 	 */
@@ -76,9 +76,9 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		}
 		catch(AMQPQueueException $e)
 		{
-            if ($removeMessageFromQueue) {
-                $q->delete();
-            }
+			if ($removeMessageFromQueue) {
+				$q->delete();
+			}
 			$connection->disconnect();
 			return false;
 		}
@@ -87,18 +87,18 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 
 		if(!$message) 
 		{
-            if ($removeMessageFromQueue) {
-                $q->delete();
-            }
+			if ($removeMessageFromQueue) {
+				$q->delete();
+			}
 			$connection->disconnect();
 			return false;
 		}
 
 		if($message->getContentType() != 'application/json')
 		{
-            if ($removeMessageFromQueue) {
-                $q->delete();
-            }
+			if ($removeMessageFromQueue) {
+				$q->delete();
+			}
 			$connection->disconnect();
 
 			throw new CeleryException('Response was not encoded using JSON - found ' . 
@@ -106,9 +106,9 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 				' - check your CELERY_RESULT_SERIALIZER setting!');
 		}
 
-        if ($removeMessageFromQueue) {
-            $q->delete();
-        }
+		if ($removeMessageFromQueue) {
+			$q->delete();
+		}
 		$connection->disconnect();
 
 		return array(
