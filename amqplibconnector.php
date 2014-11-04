@@ -138,10 +138,11 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * @param object $connection AMQPConnection object
 	 * @param string $task_id Celery task identifier
 	 * @param int $expire expire time result queue, milliseconds
+     * @param boolean $removeMessageFromQueue whether to remove message from queue
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPMessage object)
 	 * 			or false if result not ready yet
 	 */
-	function GetMessageBody($connection, $task_id,$expire=0)
+	function GetMessageBody($connection, $task_id,$expire=0, $removeMessageFromQueue = true)
 	{
 		if(!$this->receiving_channel)
 		{
@@ -187,7 +188,9 @@ class AMQPLibConnector extends AbstractAMQPConnector
 		/* Check if the callback function saved something */
 		if($this->message)
 		{
-			$this->receiving_channel->queue_delete($task_id);
+            if ($removeMessageFromQueue) {
+                $this->receiving_channel->queue_delete($task_id);
+            }
 			$this->receiving_channel->close();
 			$connection->close();
 

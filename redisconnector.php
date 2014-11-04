@@ -128,7 +128,13 @@ class RedisConnector extends AbstractAMQPConnector {
         return false;
     }
 
-    public function GetMessageBody($connection, $task_id) {
+    /**
+     * @param object $connection
+     * @param string $task_id
+     * @param boolean $removeMessageFromQueue whether to remove message from queue
+     * @return array|bool
+     */
+    public function GetMessageBody($connection, $task_id, $removeMessageFromQueue) {
         $result = $connection->get($this->getResultKey($task_id));
         if ($result) {
             $redis_result = $this->toDict($result, true);
@@ -136,7 +142,9 @@ class RedisConnector extends AbstractAMQPConnector {
                 'complete_result' => $redis_result['status'],
                 'body' => json_encode($redis_result)
             ];
-            $this->finalizeResult($connection, $task_id);
+            if ($removeMessageFromQueue) {
+                $this->finalizeResult($connection, $task_id);
+            }
             return $result;
         }
         else {

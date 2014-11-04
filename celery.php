@@ -156,6 +156,35 @@ class Celery
 			return true;
 		}
 	}
+
+    /**
+     * get the current message of the async result. If there is no async result for a task in the queue false will be returned.
+     * Can be used to pass custom states to the client as mentioned in http://celery.readthedocs.org/en/latest/userguide/tasks.html#custom-states
+     *
+     *
+     * @param string $taskName
+     * @param string $taskId
+     * @param null|array $args
+     * @param boolean $removeMessageFromQueue whether to remove the message from queue. If not celery will remove the message
+     * due to its expire parameter
+     * @return array|boolean array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
+     * 			or false if result not ready yet
+     *
+     */
+    public function getAsyncResultMessage($taskName, $taskId, $args = null, $removeMessageFromQueue = true)
+    {
+        $result = new AsyncResult($taskId, $this->connection_details, $taskName, $args);
+
+        $messageBody = $result->amqp->GetMessageBody(
+            $result->connection,
+            $taskId,
+            $this->connection_details['result_expire'],
+            $removeMessageFromQueue
+        );
+
+        return $messageBody;
+    }
+
 }
 
 /*
@@ -207,7 +236,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire']);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
 		
 		if($message !== false)
 		{
