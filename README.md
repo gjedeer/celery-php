@@ -49,6 +49,10 @@ create a celery object with ssl options:
 		echo $result->getTraceback();
 	}
 
+## GET ASYNC RESULT MESSAGE
+	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
+	$message = $c->getAsyncResultMessage('tasks.add', 'taskId);
+
 ## PYTHON-LIKE API
 
 An API compatible to AsyncResult in Python is available too.
