@@ -61,27 +61,38 @@ require('amqp.php');
  */
 class Celery
 {
-	private $connection = null; // AMQPConnection object
-	private $connection_details = array(); // array of strings required to connect
-	private $amqp = null; // AbstractAMQPConnector implementation
 
-	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
-	{
-		$ssl = !empty($ssl_options);
-		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options') as $detail)
+	private $boker_connection = null;
+	private $broker_connection_details = array();
+	private $broker_amqp = null;
+
+	private $backend_conneciton = null;
+	private $backend_connection_details = array();
+	private $backend_amqp = null;
+
+	function __construct($brokerConnection, $backendConnection = false) {
+		if (!$backendConnection) { $backendConnection = $brokerConnection; } // if no backend defined then backend is same as broker
+		$items = $this->buildConnection($brokerConnection);
+		$this->broker_connection_details = $items[0];
+		$this->broker_connection = $items[1];
+		$this->broker_amqp = $items[2];
+
+		$items = $this->buildConnection($backendConnection);
+		$this->backend_connection_details = $items[0];
+		$this->backend_connection = $items[1];
+		$this->backend_amqp = $items[2];
+	}
+
+	function buildConnection ($connectionDetails) {
+		$ssl = !empty($connection['ssl_options']);
+		if ($connectionDetails['connector'] === false || !array_key_exists('connector', $connectionDetails))
 		{
-			$this->connection_details[$detail] = $$detail;
+			$connectionDetails['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName($ssl);
 		}
-
-		if($connector === false)
-		{
-			$this->connection_details['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName($ssl);
-		}
-		$this->amqp = AbstractAMQPConnector::GetConcrete($this->connection_details['connector']);
-
-		$this->connection = self::InitializeAMQPConnection($this->connection_details);
-
-		$this->amqp->Connect($this->connection);
+		$amqp = AbstractAMQPConnector::GetConcrete($connectionDetails['connector']);
+		$connection = self::InitializeAMQPConnection($connectionDetails);
+		$amqp->Connect($connection);
+		return array($connectionDetails, $connection, $amqp);
 	}
 
 	static function InitializeAMQPConnection($details)
@@ -128,16 +139,16 @@ class Celery
 			'immediate' => false,
 			);
 
-		if($this->connection_details['persistent_messages'])
+		if($this->broker_connection_details['persistent_messages'])
 		{
 			$params['delivery_mode'] = 2;
 		}
 
-        $this->connection_details['routing_key'] = $routing_key;
+        $this->broker_connection_details['routing_key'] = $routing_key;
 
-		$success = $this->amqp->PostToExchange(
-			$this->connection,
-			$this->connection_details,
+		$success = $this->broker_amqp->PostToExchange(
+			$this->broker_connection,
+			$this->broker_connection_details,
 			$task,
 			$params
 		);
@@ -149,7 +160,7 @@ class Celery
 
         if($async_result) 
         {
-			return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
+			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
         } 
         else 
         {

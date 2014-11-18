@@ -39,15 +39,16 @@ require_once('unittest.php');
 class CeleryPECLTest extends CeleryTest {
 	public function get_c()
 	{
-		return new Celery(
-			'localhost', /* Server */
-			'gdr', /* Login */ 
-			'test', /* Password */
-			'wutka', /* vhost */
-			'celery', /* exchange */
-			'celery', /* binding */
-			5672, /* port */
-			'pecl' /* connector */
+		return new Celery(new array(
+				'host' => 'localhost', /* Server */
+				'login' => 'gdr', /* Login */ 
+				'password' => 'test', /* Password */
+				'vhost' => 'wutka', /* vhost */
+				'exchange' => 'celery', /* exchange */
+				'binding' => 'celery', /* binding */
+				'port' => 5672, /* port */
+				'connector' => 'pecl' /* connector */
+			)
 		);
 	}
 }
