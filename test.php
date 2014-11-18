@@ -47,7 +47,7 @@ $brokerConnection = array(
 	"connector" => "php-amqplib"
 );
 
-$c = new Celery($brokerConnection)
+$c = new Celery($brokerConnection);
 #$result = $c->PostTask('tasks.add', array(2,2));
 $result = $c->PostTask('tasks.delayed', array());
 #$result = $c->PostTask('tasks.fail', array());
