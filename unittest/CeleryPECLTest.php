@@ -39,7 +39,7 @@ require_once('unittest.php');
 class CeleryPECLTest extends CeleryTest {
 	public function get_c()
 	{
-		return new Celery(new array(
+		return new Celery(array(
 				'host' => 'localhost', /* Server */
 				'login' => 'gdr', /* Login */ 
 				'password' => 'test', /* Password */
