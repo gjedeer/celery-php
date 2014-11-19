@@ -39,15 +39,16 @@ require_once('unittest.php');
 class CeleryRedisTest extends CeleryTest {
 	public function get_c()
 	{
-		return new Celery(
-			'localhost', /* Server */
-			'', /* Login */ 
-			'', /* Password */
-			'wutka', /* vhost */
-			'celery', /* exchange */
-			'celery', /* binding */
-			6379, /* port */
-			'redis' /* connector */
+		return new Celery(new array(
+				'host' => 'localhost', /* Server */
+				'login' => '', /* Login */ 
+				'password' => '', /* Password */
+				'vhost' => 'wutka', /* vhost */
+				'exchange' => 'celery', /* exchange */
+				'binding' => 'celery', /* binding */
+				'port' => 6379, /* port */
+				'connector' => 'redis' /* connector */
+			)
 		);
 	}
 }
