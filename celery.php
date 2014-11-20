@@ -55,33 +55,55 @@ class CeleryPublishException extends CeleryException {};
 
 require('amqp.php');
 
+class CeleryWithBackend extends CeleryAbstract 
+{
+	function __construct($brokerConnection, $backendConnection=false) 
+	{
+		if ($backendConnection == false) { $backendConnection = $brokerConnection; }	
+	
+		$items = $this->buildConnection($brokerConnection);
+		$items = $this->buildConnection($backendConnection, true);
+	}
+}
+
+class Celery extends CeleryAbstract 
+{
+	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector = false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
+	{
+		$brokerConnection = array(
+			'host' => $host,
+			'login' => $login,
+			'password' => $password,
+			'vhost' => $vhost,
+			'exchange' => $exchange,
+			'binding' => $binding,
+			'port' => $port,
+			'connector' => $connector,
+			'result_expire' => $result_expire,
+			'ssl_options' => $ssl_options
+		);
+		$backendConnection = $brokerConnection;
+
+		$items = $this->buildConnection($brokerConnection);
+		$items = $this->buildConnection($backendConnection, true);
+	}
+}
+
+
 /**
  * Client for a Celery server
  * @package celery-php
  */
-class Celery
+abstract class CeleryAbstract
 {
 
-	private $boker_connection = null;
+	private $broker_connection = null;
 	private $broker_connection_details = array();
 	private $broker_amqp = null;
 
 	private $backend_conneciton = null;
 	private $backend_connection_details = array();
 	private $backend_amqp = null;
-
-	function __construct($brokerConnection, $backendConnection = false) {
-		if (!$backendConnection) { $backendConnection = $brokerConnection; } // if no backend defined then backend is same as broker
-		$items = $this->buildConnection($brokerConnection);
-		$this->broker_connection_details = $items[0];
-		$this->broker_connection = $items[1];
-		$this->broker_amqp = $items[2];
-
-		$items = $this->buildConnection($backendConnection);
-		$this->backend_connection_details = $items[0];
-		$this->backend_connection = $items[1];
-		$this->backend_amqp = $items[2];
-	}
 
 	private function setDefaultValues($details) {
 		$defaultValues = array("host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => array());
@@ -95,7 +117,7 @@ class Celery
 		return $returnValue;
 	}
 
-	private function buildConnection ($connectionDetails) {
+	public function buildConnection ($connectionDetails, $isBackend = false) {
 		$connectionDetails = $this->setDefaultValues($connectionDetails);
 		$ssl = !empty($connection['ssl_options']);
 
@@ -106,7 +128,17 @@ class Celery
 		$amqp = AbstractAMQPConnector::GetConcrete($connectionDetails['connector']);
 		$connection = self::InitializeAMQPConnection($connectionDetails);
 		$amqp->Connect($connection);
-		return array($connectionDetails, $connection, $amqp);
+
+		if (!$isBackend) {
+			$this->backend_connection_details = $connectionDetails;
+			$this->backend_connection = $connection;
+			$this->backend_amqp = $amqp;
+		}
+		else {
+			$this->broker_connection_details = $connectionDetails;
+			$this->broker_connection = $connection;
+			$this->broker_amqp = $amqp;
+		}
 	}
 
 	static function InitializeAMQPConnection($details)

@@ -36,18 +36,7 @@
 
 require_once('celery.php');
 
-$brokerConnection = array(
-	"host" => "localhost",
-	"login" => "gdr",
-	"password" => "test",
-	"vhost" => "wutka",
-	"exchange" => "celery",
-	"binding" => "celery",
-	"port" => 5672,
-	"connector" => "php-amqplib"
-);
-
-$c = new Celery($brokerConnection);
+$c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery', 5672, 'php-amqplib');
 #$result = $c->PostTask('tasks.add', array(2,2));
 $result = $c->PostTask('tasks.delayed', array());
 #$result = $c->PostTask('tasks.fail', array());
