@@ -96,7 +96,7 @@ class Celery
 	 * @param array $args Array of arguments (kwargs call when $args is associative)
 	 * @return AsyncResult
 	 */
-	function PostTask($task, $args, $async_result=true,$routing_key="celery")
+	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
 	{
 		if(!is_array($args))
 		{
@@ -115,13 +115,22 @@ class Celery
 			$kwargs = $args;
 			$args = array();
 		}
-                                                                            
-		$task_array = array(
-			'id' => $id,
-			'task' => $task,
-			'args' => $args,
-			'kwargs' => (object)$kwargs,
+                
+                /* 
+                 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+                 *	The usecase of this field is as follows:
+                 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
+                 */
+		$task_array = array_merge(
+			array(
+				'id' => $id,
+				'task' => $task,
+				'args' => $args,
+				'kwargs' => (object)$kwargs,
+			),
+			$task_args
 		);
+		
 		$task = json_encode($task_array);
 		$params = array('content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
