@@ -129,7 +129,7 @@ abstract class CeleryAbstract
 		$connection = self::InitializeAMQPConnection($connectionDetails);
 		$amqp->Connect($connection);
 
-		if (!$isBackend) {
+		if ($isBackend) {
 			$this->backend_connection_details = $connectionDetails;
 			$this->backend_connection = $connection;
 			$this->backend_amqp = $amqp;
