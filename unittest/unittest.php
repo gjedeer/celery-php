@@ -238,12 +238,15 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
 	{
 		$c = $this->get_c();
 
-		$result_tmp = $c->PostTask('tasks.add', array(4,4));
+		$result_tmp = $c->PostTask('tasks.add', array(427552,1));
 		$id = $result_tmp->getId();
 		sleep(1);
-		$result = $c->getAsyncResultMessage('tasks.add', $id);
-		$body = json_decode($result['body']);
-		$this->assertTrue($body->result == 8);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, true);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
 	}
 
 	public function testReturnedArray()
