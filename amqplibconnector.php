@@ -55,9 +55,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	/** 
 	 * How long (in seconds) to wait for a message from queue 
 	 * Sadly, this can't be set to zero to achieve complete asynchronity
-	 * @TODO change to 0.1 when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80 
 	 */
-    public $wait_timeout = 1;
+    public $wait_timeout = 0.1;
 
 	/**
 	 * PhpAmqpLib\Message\AMQPMessage object received from the queue
