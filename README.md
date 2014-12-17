@@ -12,6 +12,8 @@ Last PHP-amqplib version tested is 2.2.6.
 
 Last Celery version tested is 3.1.11
 
+[API documentation](https://massivescale.net/celery-php/li_celery-php.html)
+
 ## POSTING TASKS                                                                                                                           
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
