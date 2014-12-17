@@ -170,13 +170,12 @@ class Celery
 	}
 
 	/**
-	 * get the current message of the async result. If there is no async result for a task in the queue false will be returned.
+	 * Get the current message of the async result. If there is no async result for a task in the queue false will be returned.
 	 * Can be used to pass custom states to the client as mentioned in http://celery.readthedocs.org/en/latest/userguide/tasks.html#custom-states
 	 *
-	 *
-	 * @param string $taskName
-	 * @param string $taskId
-	 * @param null|array $args
+	 * @param string $taskName Name of the called task, like 'tasks.add'
+	 * @param string $taskId The Task ID - from AsyncResult::getId()
+	 * @param null|array $args Task arguments
 	 * @param boolean $removeMessageFromQueue whether to remove the message from queue. If not celery will remove the message
 	 * due to its expire parameter
 	 * @return array|boolean array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
