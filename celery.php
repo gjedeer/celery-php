@@ -145,7 +145,7 @@ class Celery
 			$params['delivery_mode'] = 2;
 		}
 
-        $this->connection_details['routing_key'] = $routing_key;
+		$this->connection_details['routing_key'] = $routing_key;
 
 		$success = $this->amqp->PostToExchange(
 			$this->connection,
@@ -154,20 +154,49 @@ class Celery
 			$params
 		);
 
-        if(!$success) 
-        {
-           throw new CeleryPublishException();
-        }
+		if(!$success)
+		{
+		   throw new CeleryPublishException();
+		}
 
-        if($async_result) 
-        {
+		if($async_result)
+		{
 			return new AsyncResult($id, $this->connection_details, $task_array['task'], $args);
-        } 
-        else 
-        {
+		}
+		else
+		{
 			return true;
 		}
 	}
+
+	/**
+	 * get the current message of the async result. If there is no async result for a task in the queue false will be returned.
+	 * Can be used to pass custom states to the client as mentioned in http://celery.readthedocs.org/en/latest/userguide/tasks.html#custom-states
+	 *
+	 *
+	 * @param string $taskName
+	 * @param string $taskId
+	 * @param null|array $args
+	 * @param boolean $removeMessageFromQueue whether to remove the message from queue. If not celery will remove the message
+	 * due to its expire parameter
+	 * @return array|boolean array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
+	 * 			or false if result not ready yet
+	 *
+	 */
+	public function getAsyncResultMessage($taskName, $taskId, $args = null, $removeMessageFromQueue = true)
+	{
+		$result = new AsyncResult($taskId, $this->connection_details, $taskName, $args);
+
+		$messageBody = $result->amqp->GetMessageBody(
+			$result->connection,
+			$taskId,
+			$this->connection_details['result_expire'],
+			$removeMessageFromQueue
+		);
+
+		return $messageBody;
+	}
+
 }
 
 /*
@@ -219,7 +248,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire']);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
 		
 		if($message !== false)
 		{
@@ -237,7 +266,7 @@ class AsyncResult
 	 */
 	static private function getmicrotime()
 	{
-		    list($usec, $sec) = explode(" ",microtime()); 
+			list($usec, $sec) = explode(" ",microtime());
 			return ((float)$usec + (float)$sec); 
 	}
 
@@ -247,7 +276,7 @@ class AsyncResult
 	 */
 	 function getId()
 	 {
-	 	return $this->task_id;
+		return $this->task_id;
 	 }
 
 	/**
@@ -344,21 +373,21 @@ class AsyncResult
 
 		$start_time = self::getmicrotime();
 		while(self::getmicrotime() - $start_time < $timeout)
-        {
-                if($this->isReady())
-                {
-                        break;
-                }
+		{
+				if($this->isReady())
+				{
+						break;
+				}
 
-                usleep($interval_us);
-        }
+				usleep($interval_us);
+		}
 
-        if(!$this->isReady())
-        {
-                throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
-        }
+		if(!$this->isReady())
+		{
+				throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
+		}
 
-        return $this->getResult();
+		return $this->getResult();
 	}
 
 	/**

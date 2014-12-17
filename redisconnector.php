@@ -187,28 +187,31 @@ class RedisConnector extends AbstractAMQPConnector {
 	 * Return result of task execution for $task_id
 	 * @param object $connection Predis\Client connection object returned by GetConnectionObject()
 	 * @param string $task_id Celery task identifier
-	 * @return array array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
+	 * @param boolean $removeMessageFromQueue whether to remove message from queue
+	 * @return array|bool array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
 	 * 			or false if result not ready yet
 	 */
-	public function GetMessageBody($connection, $task_id) 
+	public function GetMessageBody($connection, $task_id, $removeMessageFromQueue=true) 
 	{
-        $result = $connection->get($this->GetResultKey($task_id));
+		$result = $connection->get($this->GetResultKey($task_id));
 		if ($result) 
 		{
-            $redis_result = $this->ToDict($result, true);
-            $result = Array(
-                'complete_result' => $redis_result['status'],
-                'body' => json_encode($redis_result)
-            );
-			$this->FinalizeResult($connection, $task_id);
+			$redis_result = $this->ToDict($result, true);
+			$result = Array(
+				'complete_result' => $redis_result['status'],
+				'body' => json_encode($redis_result)
+			);
+			if ($removeMessageFromQueue) {
+				$this->FinalizeResult($connection, $task_id);
+			}
 
-            return $result;
-        }
+			return $result;
+		}
 		else 
 		{
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 
 	/**
 	 * Return Predis\Client connection object passed to all other calls
