@@ -94,6 +94,9 @@ class Celery
 	 * Post a task to Celery
 	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
 	 * @param array $args Array of arguments (kwargs call when $args is associative)
+	 * @param bool $async_result Set to false if you don't need the AsyncResult object returned
+	 * @param string $routing_key Set to routing key name if you're using something other than "celery"
+	 * @param array $task_args Additional settings for Celery - normally not needed
 	 * @return AsyncResult
 	 */
 	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
@@ -116,11 +119,11 @@ class Celery
 			$args = array();
 		}
                 
-                /* 
-                 *	$task_args may contain additional arguments such as eta which are useful in task execution 
-                 *	The usecase of this field is as follows:
-                 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
-                 */
+		 /* 
+		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+		 *	The usecase of this field is as follows:
+		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
+		 */
 		$task_array = array_merge(
 			array(
 				'id' => $id,
@@ -135,7 +138,7 @@ class Celery
 		$params = array('content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
 			'immediate' => false,
-			);
+		 );
 
 		if($this->connection_details['persistent_messages'])
 		{
