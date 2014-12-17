@@ -60,37 +60,68 @@ class RedisConnector extends AbstractAMQPConnector {
 
     public $celery_result_prefix = 'celery-task-meta-';
 
-    public function getHeaders() {
+	/**
+	 * Return headers used sent to Celery
+	 * Override this function to set custom headers
+	 */
+	protected function GetHeaders() 
+	{
         return array();
     }
 
-    public function getMessage($task) {
-
+	/**
+	 * Prepare the message sent to Celery
+	 */
+	protected function GetMessage($task) 
+	{
         $result = Array();
         $result['body'] = base64_encode($task);
-        $result['headers'] = $this->getHeaders();
+        $result['headers'] = $this->GetHeaders();
         $result['content-type'] = $this->content_type;
         $result['content-encoding'] = 'binary';
         return $result;
     }
 
-    public function getDeliveryMode() {
+	/**
+	 * Return preferred delivery mode
+	 */
+	protected function GetDeliveryMode() 
+	{
+	    /* 
+		 * http://celery.readthedocs.org/en/latest/userguide/optimizing.html#using-transient-queues
+		 * 1 - will not be written to disk
+		 * 2 - can be written to disk
+		 */
         return 2;
     }
 
-    public function toStr($var){
+	/**
+	 * Convert the message dictionary to string
+	 * Override this function to use non-JSON serialization
+	 */
+	protected function ToStr($var)
+	{
         return json_encode($var);
     }
 
-    public function toDict($raw_json) {
+	/**
+	 * Convert the message string to dictionary
+	 * Override this function to use non-JSON serialization
+	 */
+	protected function ToDict($raw_json) 
+	{
         return json_decode($raw_json, TRUE);
     }
 
-    public function PostToExchange($connection, $details, $task, $params) {
-
+	/**
+	 * Post the message to Redis
+	 * This function implements the AbstractAMQPConnector interface
+	 */
+	public function PostToExchange($connection, $details, $task, $params) 
+	{
         $connection = $this->Connect($connection);
         $body = json_decode($task, true);
-        $message = $this->getMessage($task);
+        $message = $this->GetMessage($task);
         $message['properties'] = Array(
             'body_encoding' => 'base64',
             'reply_to' => $body['id'],
@@ -99,51 +130,91 @@ class RedisConnector extends AbstractAMQPConnector {
                 'routing_key' => $details['binding'],
                 'exchange' => $details['exchange'],
             ),
-            'delivery_mode' => $this->getDeliveryMode(),
+            'delivery_mode' => $this->GetDeliveryMode(),
             'delivery_tag'  => $body['id']
         );
-        $connection->lPush($details['exchange'], $this->toStr($message));
+        $connection->lPush($details['exchange'], $this->ToStr($message));
+
 		return TRUE;
     }
 
-    public function Connect($connection) {
-        if ($connection->isConnected()) {
+	/**
+	 * Initialize connection on a given connection object
+	 * This function implements the AbstractAMQPConnector interface
+	 * @return NULL
+	 */
+	public function Connect($connection) 
+	{
+	    if ($connection->isConnected()) 
+	    {
             return $connection;
-        } else {
+		} 
+		else 
+		{
             $connection->connect();
             return $connection;
         }
-
     }
 
-    public function getResultKey($task_id) {
+	/**
+	 * Return the result queue name for a given task ID
+	 * @param string $task_id
+	 * @return string
+	 */
+	protected function GetResultKey($task_id) 
+	{
         return sprintf("%s%s", $this->celery_result_prefix, $task_id);
     }
 
-    public function finalizeResult($connection, $task_id) {
-        if ($connection->exists($this->getResultKey($task_id))) {
-            $connection->del($this->getResultKey($task_id));
+	/**
+	 * Clean up after reading the message body
+	 * @param object $connection Predis\Client connection object returned by GetConnectionObject()
+	 * @param string $task_id
+	 * @return bool
+	 */
+	protected function FinalizeResult($connection, $task_id) 
+	{
+		if ($connection->exists($this->GetResultKey($task_id))) 
+		{
+            $connection->del($this->GetResultKey($task_id));
             return true;
         }
-        return false;
+		
+		return false;
     }
 
-    public function GetMessageBody($connection, $task_id) {
-        $result = $connection->get($this->getResultKey($task_id));
-        if ($result) {
-            $redis_result = $this->toDict($result, true);
+	/**
+	 * Return result of task execution for $task_id
+	 * @param object $connection Predis\Client connection object returned by GetConnectionObject()
+	 * @param string $task_id Celery task identifier
+	 * @return array array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
+	 * 			or false if result not ready yet
+	 */
+	public function GetMessageBody($connection, $task_id) 
+	{
+        $result = $connection->get($this->GetResultKey($task_id));
+		if ($result) 
+		{
+            $redis_result = $this->ToDict($result, true);
             $result = Array(
                 'complete_result' => $redis_result['status'],
                 'body' => json_encode($redis_result)
             );
-            $this->finalizeResult($connection, $task_id);
+			$this->FinalizeResult($connection, $task_id);
+
             return $result;
         }
-        else {
+		else 
+		{
             return false;
         }
     }
 
+	/**
+	 * Return Predis\Client connection object passed to all other calls
+	 * @param array $details Array of connection details
+	 * @return object
+	 */
     function GetConnectionObject($details) {
         $connect = new Predis\Client(Array(
             'scheme' => 'tcp',
