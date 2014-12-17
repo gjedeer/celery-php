@@ -340,23 +340,6 @@ class AsyncResult
 	 */
 	function get($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
-		/**
-		 * This is an ugly workaround for PHP-AMQPLIB lack of support for fractional wait time
-		 * @TODO remove the whole 'if' when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80
-		 */
-		$original_interval = $interval;
-		if(property_exists($this->connection, 'wait_timeout'))
-		{
-			if($this->connection->wait_timeout < $interval)
-			{
-				$interval = 0;
-			}
-			else
-			{
-				$interval -= $this->connection->wait_timeout;
-			}
-		}
-
 		$interval_us = (int)($interval * 1000000);
 		$iteration_limit = ceil($timeout / $original_interval);
 
