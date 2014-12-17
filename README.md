@@ -17,20 +17,6 @@ Last Celery version tested is 3.1.11
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
 
-## CONNECTING VIA SSL
-Connecting to a RabbitMQ server that requires SSL is currently only possible via PHP-amqplib to do so you'll need to
-create a celery object with ssl options:
-
-	$ssl_options = array(
-      'cafile' => 'PATH_TO_CA_CERT_FILE',
-      'verify_peer' => true,
-      'passphrase' => 'LOCAL_CERT_PASSPHRASE',
-      'local_cert' => 'PATH_TO_COMBINED_CLIENT_CERT_KEY',
-      'CN_match' => 'CERT_COMMON_NAME'
-	);
-
-	$c = new Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
-
 ## READING ASYNC RESULTS
 
 	while(!$result->isReady())
@@ -73,3 +59,32 @@ PHP-amqplib support is *experimental* right now. It passes most unit tests and s
 ## SUPPORT
 
 If you need help integrating Celery in your PHP app, you may be interested in hiring me as a [consultant](http://massivescale.net/performance-for-developers.html).
+
+## CONNECTING VIA SSL
+Connecting to a RabbitMQ server that requires SSL is currently only possible via PHP-amqplib to do so you'll need to
+create a celery object with ssl options:
+
+	$ssl_options = array(
+      'cafile' => 'PATH_TO_CA_CERT_FILE',
+      'verify_peer' => true,
+      'passphrase' => 'LOCAL_CERT_PASSPHRASE',
+      'local_cert' => 'PATH_TO_COMBINED_CLIENT_CERT_KEY',
+      'CN_match' => 'CERT_COMMON_NAME'
+	);
+
+	$c = new Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
+
+## CONNECTING TO REDIS
+
+Refer to files in testscenario/ for examples of celeryconfig.py.
+
+	$c = new Celery(
+		'localhost', /* Server */
+		'', /* Login */ 
+		'test', /* Password */
+		'wutka', /* vhost */
+		'celery', /* exchange */
+		'celery', /* binding */
+		6379, /* port */
+		'redis' /* connector */
+	);
