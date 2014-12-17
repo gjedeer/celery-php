@@ -187,11 +187,12 @@ class RedisConnector extends AbstractAMQPConnector {
 	 * Return result of task execution for $task_id
 	 * @param object $connection Predis\Client connection object returned by GetConnectionObject()
 	 * @param string $task_id Celery task identifier
+	 * @param int $expire Unused in Redis
 	 * @param boolean $removeMessageFromQueue whether to remove message from queue
 	 * @return array|bool array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
 	 * 			or false if result not ready yet
 	 */
-	public function GetMessageBody($connection, $task_id, $removeMessageFromQueue=true) 
+	public function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue=true) 
 	{
 		$result = $connection->get($this->GetResultKey($task_id));
 		if ($result) 
@@ -201,7 +202,8 @@ class RedisConnector extends AbstractAMQPConnector {
 				'complete_result' => $redis_result,
 				'body' => json_encode($redis_result)
 			);
-			if ($removeMessageFromQueue) {
+			if ($removeMessageFromQueue) 
+			{
 				$this->FinalizeResult($connection, $task_id);
 			}
 
