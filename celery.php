@@ -341,7 +341,6 @@ class AsyncResult
 	function get($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
 		$interval_us = (int)($interval * 1000000);
-		$iteration_limit = ceil($timeout / $original_interval);
 
 		$start_time = self::getmicrotime();
 		while(self::getmicrotime() - $start_time < $timeout)
