@@ -198,7 +198,7 @@ class RedisConnector extends AbstractAMQPConnector {
 		{
 			$redis_result = $this->ToDict($result, true);
 			$result = Array(
-				'complete_result' => $redis_result['status'],
+				'complete_result' => $redis_result,
 				'body' => json_encode($redis_result)
 			);
 			if ($removeMessageFromQueue) {
