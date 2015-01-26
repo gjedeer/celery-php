@@ -19,7 +19,7 @@ Last Celery version tested is 3.1.11
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
 	
-	// The tasks are serializable so you can do the following:
+	// The results are serializable so you can do the following:
 	$_SESSION['celery_result'] = $result;
 	// and use this variable in an AJAX call or whatever
 
