@@ -1,5 +1,5 @@
 {
-    "name": "massivescale/celery-php",
+    "name": "jjbubudi/celery-php",
     "type": "library",
     "description": "PHP client for Celery task queue",
     "keywords": ["celery", "amqp", "task", "cron", "queue", "python"],
