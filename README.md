@@ -4,6 +4,7 @@ Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php), th
 
 	CELERY_RESULT_SERIALIZER = "json"
 	CELERY_TASK_RESULT_EXPIRES = None
+	CELERY_TRACK_STARTED = False
 
 PECL-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
 There is a separate branch for 0.3.
