@@ -65,11 +65,9 @@ An API compatible to AsyncResult in Python is available too.
 Based on [this blog post](http://www.toforge.com/2011/01/run-celery-tasks-from-php/) and reading Celery sources. Thanks to Skrat, author of [Celerb](https://github.com/skrat/celerb) for a tip about response encoding. Created for the needs of my consulting work at [Massive Scale](http://massivescale.net/).
 License is 2-clause BSD.
 
-PHP-amqplib support is *experimental* right now. It passes most unit tests and should be safe to work with, though.
+## DEVELOPMENT
 
-## SUPPORT
-
-If you need help integrating Celery in your PHP app, you may be interested in hiring me as a [consultant](http://massivescale.net/performance-for-developers.html).
+[Development process and goals.](DEVELOPMENT.md)
 
 ## CONNECTING VIA SSL
 Connecting to a RabbitMQ server that requires SSL is currently only possible via PHP-amqplib to do so you'll need to
