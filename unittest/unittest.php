@@ -46,7 +46,8 @@ composer global require 'phpunit/phpunit'
  phpunit CeleryAMQPLibTest unittest/CeleryAMQPLibTest.php
  */
 
-require_once('vendor/autoload.php');
+/* Include Composer installed packages if available */
+include_once('vendor/autoload.php');
 require_once('celery.php');
 
 
