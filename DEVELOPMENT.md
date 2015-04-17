@@ -1,7 +1,9 @@
 ## Goals
 
 API stability is the primary goal. Users should upgrade from the first released version and their code should work without any issues. Unit tests are present to ensure this. 
+
 Good documentation is a secondary goal. Every class and method needs to be commented with a [PHPDocumentor](http://www.phpdoc.org/docs/latest/guides/docblocks.html) header.
+
 Testability is a tetrary goal. If you're reporting a bug, please provide a test case.
 
 In other words: your patch will be rejected if it implements the latest and greatest features of Celery but breaks backwards compatibility and/or lacks documentation (and/or deletes existing documentation while also breaking indentation - I've seen this before).
