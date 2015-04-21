@@ -65,6 +65,8 @@ class Celery
 	private $connection_details = array(); // array of strings required to connect
 	private $amqp = null; // AbstractAMQPConnector implementation
 
+	private $isConnected = false;
+
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
 	{
 		$ssl = !empty($ssl_options);
@@ -105,6 +107,12 @@ class Celery
 		{
 			throw new CeleryException("Args should be an array");
 		}
+
+		if (!$this->isConnected) {
+			$this->amqp->Connect($this->connection);
+			$this->isConnected = true;
+		}
+
 		$id = uniqid('php_', TRUE);
 
 		/* $args is numeric -> positional args */
