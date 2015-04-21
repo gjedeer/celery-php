@@ -7,16 +7,16 @@
  *
  * Copyright (c) 2012, GDR!
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
- * 
+ * modification, are permitted provided that the following conditions are met:
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
- * 
+ *    and/or other materials provided with the distribution.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,10 +27,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies, 
- * either expressed or implied, of the FreeBSD Project. 
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the FreeBSD Project.
  *
  * @link http://massivescale.net/
  * @link http://gdr.geekhood.net/
@@ -65,6 +65,8 @@ class Celery
 	private $connection_details = array(); // array of strings required to connect
 	private $amqp = null; // AbstractAMQPConnector implementation
 
+    private $isConnected = false;
+
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
 	{
 		$ssl = !empty($ssl_options);
@@ -80,8 +82,6 @@ class Celery
 		$this->amqp = AbstractAMQPConnector::GetConcrete($this->connection_details['connector']);
 
 		$this->connection = self::InitializeAMQPConnection($this->connection_details);
-
-		$this->amqp->Connect($this->connection);
 	}
 
 	static function InitializeAMQPConnection($details)
@@ -105,6 +105,12 @@ class Celery
 		{
 			throw new CeleryException("Args should be an array");
 		}
+
+        if (!$this->isConnected) {
+            $this->amqp->Connect($this->connection);
+            $this->isConnected = true;
+        }
+
 		$id = uniqid('php_', TRUE);
 
 		/* $args is numeric -> positional args */
@@ -118,9 +124,9 @@ class Celery
 			$kwargs = $args;
 			$args = array();
 		}
-                
-		 /* 
-		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+
+		 /*
+		 *	$task_args may contain additional arguments such as eta which are useful in task execution
 		 *	The usecase of this field is as follows:
 		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
 		 */
@@ -133,7 +139,7 @@ class Celery
 			),
 			$task_args
 		);
-		
+
 		$task = json_encode($task_array);
 		$params = array('content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
@@ -202,7 +208,7 @@ class Celery
  * Asynchronous result of Celery task
  * @package celery-php
  */
-class AsyncResult 
+class AsyncResult
 {
 	private $task_id; // string, queue name
 	private $connection; // AMQPConnection instance
@@ -248,7 +254,7 @@ class AsyncResult
 		}
 
 		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
-		
+
 		if($message !== false)
 		{
 			$this->complete_result = $message['complete_result'];
@@ -261,12 +267,12 @@ class AsyncResult
 	}
 
 	/**
-	 * Helper function to return current microseconds time as float 
+	 * Helper function to return current microseconds time as float
 	 */
 	static private function getmicrotime()
 	{
 			list($usec, $sec) = explode(" ",microtime());
-			return ((float)$usec + (float)$sec); 
+			return ((float)$usec + (float)$sec);
 	}
 
 	/**
@@ -395,7 +401,7 @@ class AsyncResult
 	public function __get($property)
 	{
 		/**
-		 * When the task has been executed, this contains the return value. 
+		 * When the task has been executed, this contains the return value.
 		 * If the task raised an exception, this will be the exception instance.
 		 */
 		if($property == 'result')
