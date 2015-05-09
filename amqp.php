@@ -1,21 +1,37 @@
 <?php
 
+
+$loader = @include_once(__DIR__ . '/../vendor/autoload.php');
+if($loader == null) {
+	$loader = @include_once('vendor/autoload.php');
+}
+
+if($loader == null) {
+	throw new Exception("Composer not installed");
+}
+
+$hasPhpAmqpLib = $loader->loadClass('PhpAmqpLib\Connection\AMQPConnection');
+$hasPredis = $loader->loadClass('Predis\Autoloader');
+$hasPECL = $loader->loadClass('AMQPConnection');
+
 /* Include namespaced code only if PhpAmqpLib available */
-if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
+if($hasPhpAmqpLib === true)
 {
 	require_once('amqplibconnector.php');
 	require_once('amqplibconnectorssl.php');
-
 }
 
 /* Include only if predis available */
-if(class_exists('Predis\Autoloader'))
+if($hasPredis === true)
 {
 	require_once('redisconnector.php');
 }
 
-/* Including the PECL connector never fails */
-require_once('amqppeclconnector.php');
+/* Including only if the PECL available */
+if($hasPECL === true)
+{
+	require_once('amqppeclconnector.php');
+}
 
 /**
  * Abstraction for AMQP client libraries
@@ -46,25 +62,29 @@ abstract class AbstractAMQPConnector
 	 */
 	static function GetConcreteByName($name)
 	{
-		if($name == 'pecl')
+		global $hasPhpAmqpLib;
+		global $hasPredis;
+		global $hasPECL;
+
+		if($name == 'pecl' && $hasPECL === true)
 		{
 			return new PECLAMQPConnector();
 		}
-		elseif($name == 'php-amqplib')
+		elseif($name == 'php-amqplib' && $hasPhpAmqpLib === true)
 		{
 			return new AMQPLibConnector();
 		}
-		elseif($name == 'php-amqplib-ssl')
+		elseif($name == 'php-amqplib-ssl' && $hasPhpAmqpLib === true)
 		{
 			return new AMQPLibConnectorSsl();
 		}
-		elseif($name == 'redis')
+		elseif($name == 'redis' && $hasPredis === true)
 		{
 			return new RedisConnector();
 		}
 		else
 		{
-			throw new Exception('Unknown extension name ' . $name);
+			throw new Exception('Unknown extension name ' . $name . ' or the library is not installed.');
 		}
 	}
 
@@ -74,15 +94,18 @@ abstract class AbstractAMQPConnector
 	 */
 	static function GetBestInstalledExtensionName($ssl = false)
 	{
-		if($ssl === true) //pecl doesn't support ssl
+		global $hasPhpAmqpLib;
+		global $hasPECL;
+
+		if($ssl === true && $hasPhpAmqpLib === true) //pecl doesn't support ssl
 		{
 			return 'php-amqplib-ssl';
 		}
-		elseif(class_exists('AMQPConnection') && extension_loaded('amqp'))
+		elseif($hasPECL === true)
 		{
 			return 'pecl';
 		}
-		elseif(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
+		elseif($hasPhpAmqpLib === true)
 		{
 			return 'php-amqplib';
 		}

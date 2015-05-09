@@ -13,16 +13,12 @@
             "role": "Developer"
         }
     ],
-    "require": {
-	"videlalvaro/php-amqplib": ">=2.4.0",
-        "predis/predis": "0.8.5"           
+    "suggest": {
+        "videlalvaro/php-amqplib": "for AMQP support",
+        "predis/predis": "for redis broker support",
+        "ext-amqp": "for rabbitmq-c/pecl-amqp support"
     },
     "autoload": {
         "classmap": ["celery.php"]
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0-dev"
-        }
     }
 }
