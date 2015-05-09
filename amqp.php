@@ -10,7 +10,7 @@ if($loader == null) {
 	throw new Exception("Composer not installed");
 }
 
-$hasPhpAmqpLib = $loader->loadClass('PhpAmqpLib\Connection\AMQPConnection');
+$hasPhpAmqpLib = $loader->loadClass('PhpAmqpLib\Connection\AMQPStreamConnection');
 $hasPredis = $loader->loadClass('Predis\Autoloader');
 $hasPECL = $loader->loadClass('AMQPConnection');
 
