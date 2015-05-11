@@ -1,36 +1,58 @@
 <?php
 
 
-$loader = @include_once(__DIR__ . '/../vendor/autoload.php');
-if($loader == null) {
-	$loader = @include_once('vendor/autoload.php');
-}
-
-if($loader == null) {
-	throw new Exception("Composer not installed");
-}
-
-$hasPhpAmqpLib = $loader->loadClass('PhpAmqpLib\Connection\AMQPStreamConnection');
-$hasPredis = $loader->loadClass('Predis\Autoloader');
-$hasPECL = $loader->loadClass('AMQPConnection');
-
-/* Include namespaced code only if PhpAmqpLib available */
-if($hasPhpAmqpLib === true)
+class AMQPCapabilities
 {
-	require_once('amqplibconnector.php');
-	require_once('amqplibconnectorssl.php');
-}
+    protected $loader;
 
-/* Include only if predis available */
-if($hasPredis === true)
-{
-	require_once('redisconnector.php');
-}
+    public function __construct() {
+        // Try to load Composer's loader
 
-/* Including only if the PECL available */
-if($hasPECL === true)
-{
-	require_once('amqppeclconnector.php');
+        // Load as module within external application
+        $this->loader = @include_once(__DIR__ . '/../vendor/autoload.php');
+        if($this->loader == null) {
+            // Load with local composer for testing
+            $this->loader = @include_once('vendor/autoload.php');
+        }
+
+        // If there is now loader, fail.
+        if($this->loader == null) {
+            throw new Exception("Composer not installed");
+        }
+
+
+    }
+
+    public function testLib($library) {
+        $hasLib = $this->loader->loadClass($library);
+        return ($hasLib === true);
+    }
+
+    public function testAndLoadPhpAmqpLib() {
+        $hasLib = $this->testLib('PhpAmqpLib\Connection\AMQPStreamConnection');
+        if($hasLib) {
+            require_once('amqplibconnector.php');
+            require_once('amqplibconnectorssl.php');
+        }
+        return $hasLib;
+    }
+
+    public function testAndLoadPredis() {
+        $hasLib = $this->testLib('Predis\Autoloader');
+        if($hasLib) {
+            /* Include only if predis available */
+            require_once('redisconnector.php');
+        }
+        return $hasLib;
+    }
+
+    public function testAndLoadPECL() {
+        $hasLib = $this->testLib('AMQPConnection');
+        if($hasLib) {
+            require_once('amqppeclconnector.php');
+        }
+        return $hasLib;
+    }
 }
 
 /**
@@ -62,30 +84,36 @@ abstract class AbstractAMQPConnector
 	 */
 	static function GetConcreteByName($name)
 	{
-		global $hasPhpAmqpLib;
-		global $hasPredis;
-		global $hasPECL;
+        $caps = new AMQPCapabilities();
 
-		if($name == 'pecl' && $hasPECL === true)
-		{
-			return new PECLAMQPConnector();
-		}
-		elseif($name == 'php-amqplib' && $hasPhpAmqpLib === true)
-		{
-			return new AMQPLibConnector();
-		}
-		elseif($name == 'php-amqplib-ssl' && $hasPhpAmqpLib === true)
-		{
-			return new AMQPLibConnectorSsl();
-		}
-		elseif($name == 'redis' && $hasPredis === true)
-		{
-			return new RedisConnector();
-		}
-		else
-		{
-			throw new Exception('Unknown extension name ' . $name . ' or the library is not installed.');
-		}
+        switch($name) {
+            case 'pecl':
+                if($caps->testAndLoadPECL() === true) {
+                    return new PECLAMQPConnector();
+                }
+                break;
+
+            case 'php-amqplib':
+            case 'php-amqplib-ssl':
+                if($caps->testAndLoadPhpAmqpLib() === true) {
+                    if($name === 'php-amqplib-ssl') {
+                        return new AMQPLibConnectorSsl();
+                    } else {
+                        return new AMQPLibConnector();
+                    }
+                }
+                break;
+
+            case 'redis':
+                if($caps->testAndLoadPredis() === true) {
+                    return new RedisConnector();
+                }
+                break;
+
+            default:
+                throw new Exception('Unknown extension name ' . $name);
+        }
+        throw new Exception('AMQP extension ' . $name . ' is not installed properly using Composer');
 	}
 
 	/**
@@ -94,8 +122,9 @@ abstract class AbstractAMQPConnector
 	 */
 	static function GetBestInstalledExtensionName($ssl = false)
 	{
-		global $hasPhpAmqpLib;
-		global $hasPECL;
+        $caps = new AMQPCapabilities();
+        $hasPhpAmqpLib = $caps->testAndLoadPhpAmqpLib();
+        $hasPECL = $caps->testAndLoadPECL();
 
 		if($ssl === true && $hasPhpAmqpLib === true) //pecl doesn't support ssl
 		{
@@ -109,10 +138,8 @@ abstract class AbstractAMQPConnector
 		{
 			return 'php-amqplib';
 		}
-		else
-		{
-			return 'unknown';
-		}
+
+        throw new Exception('You must install at least one AMQP extension using Composer');
 	}
 
 	/**
