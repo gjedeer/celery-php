@@ -9,23 +9,21 @@ class AMQPCapabilities
         // Try to load Composer's loader
 
         // Load as module within external application
-        $this->loader = @include_once(__DIR__ . '/../vendor/autoload.php');
+        $this->loader = @include(dirname(__FILE__) . "/../../autoload.php");
         if($this->loader == null) {
             // Load with local composer for testing
-            $this->loader = @include_once('vendor/autoload.php');
+            $this->loader = @include('vendor/autoload.php');
         }
 
         // If there is now loader, fail.
         if($this->loader == null) {
             throw new Exception("Composer not installed");
         }
-
-
     }
 
     public function testLib($library) {
-        $hasLib = $this->loader->loadClass($library);
-        return ($hasLib === true);
+        $hasLib = $this->loader->findFile($library);
+        return ($hasLib !== false);
     }
 
     public function testAndLoadPhpAmqpLib() {
