@@ -45,7 +45,7 @@ class AMQPCapabilities
 	}
 
 	public function testAndLoadPECL() {
-		$hasLib = $this->testLib('AMQPConnection');
+		$hasLib = class_exists('AMQPConnection') && extension_loaded('amqp');
 		if($hasLib) {
 			require_once('amqppeclconnector.php');
 		}
