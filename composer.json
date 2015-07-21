@@ -7,6 +7,7 @@
 	"support": {
 		"issues": "https://github.com/gjedeer/celery-php/issues",
 		"docs": "https://github.com/gjedeer/celery-php/"
+	},
     "license": "BSD-2-Clause",
     "authors": [
         {
