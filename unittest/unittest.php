@@ -160,8 +160,8 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
 		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array(4,4));
-#		$this->assertFalse($result->ready()); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80
-#		$this->assertNull($result->result); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80 
+		$this->assertFalse($result->ready());
+		$this->assertNull($result->result);
 		$rv = $result->get();
 		$this->assertEquals(8, $rv);
 		$this->assertEquals(8, $result->result);
@@ -173,8 +173,8 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
 		$c = $this->get_c();
 
 		$result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
-#		$this->assertFalse($result->ready()); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80
-#		$this->assertNull($result->result); // TODO uncomment when this happens https://github.com/videlalvaro/php-amqplib/pull/80 
+		$this->assertFalse($result->ready());
+		$this->assertNull($result->result);
 		$rv = $result->get();
 		$this->assertEquals(8, $rv);
 		$this->assertEquals(8, $result->result);
