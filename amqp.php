@@ -4,48 +4,58 @@ class AMQPCapabilities
 {
 	protected $loader;
 
-	public function __construct() {
+	public function __construct() 
+	{
 		// Try to load Composer's loader
 
 		// Load as module within external application
 		$this->loader = @include(dirname(__FILE__) . "/../../autoload.php");
-		if($this->loader == null) {
+		if($this->loader == null) 
+		{
 			// Load with local composer for testing
 			$this->loader = @include('vendor/autoload.php');
 		}
 
 		// If there is now loader, fail.
-		if($this->loader == null) {
+		if($this->loader == null) 
+		{
 			throw new CeleryException("Composer not installed");
 		}
 	}
 
-	public function TestLib($library) {
+	public function TestLib($library) 
+	{
 		$hasLib = $this->loader->findFile($library);
 		return ($hasLib !== false);
 	}
 
-	public function TestAndLoadPhpAmqpLib() {
+	public function TestAndLoadPhpAmqpLib() 
+	{
 		$hasLib = $this->TestLib('PhpAmqpLib\Connection\AMQPStreamConnection');
-		if($hasLib) {
+		if($hasLib) 
+		{
 			require_once('amqplibconnector.php');
 			require_once('amqplibconnectorssl.php');
 		}
 		return $hasLib;
 	}
 
-	public function TestAndLoadPredis() {
+	public function TestAndLoadPredis() 
+	{
 		$hasLib = $this->TestLib('Predis\Autoloader');
-		if($hasLib) {
+		if($hasLib) 
+		{
 			/* Include only if predis available */
 			require_once('redisconnector.php');
 		}
 		return $hasLib;
 	}
 
-	public function TestAndLoadPECL() {
+	public function TestAndLoadPECL() 
+	{
 		$hasLib = class_exists('AMQPConnection') && extension_loaded('amqp');
-		if($hasLib) {
+		if($hasLib) 
+		{
 			require_once('amqppeclconnector.php');
 		}
 		return $hasLib;
@@ -85,26 +95,32 @@ abstract class AbstractAMQPConnector
 
 		switch($name) {
 			case 'pecl':
-			if($caps->TestAndLoadPECL() === true) {
-				return new PECLAMQPConnector();
-			}
-			break;
+				if($caps->TestAndLoadPECL() === true) 
+				{
+					return new PECLAMQPConnector();
+				}
+				break;
 
 			case 'php-amqplib':
 			case 'php-amqplib-ssl':
-			if($caps->TestAndLoadPhpAmqpLib() === true) {
-				 if($name === 'php-amqplib-ssl') {
-					return new AMQPLibConnectorSsl();
-				} else {
-					return new AMQPLibConnector();
+				if($caps->TestAndLoadPhpAmqpLib() === true) 
+				{
+					if($name === 'php-amqplib-ssl') 
+					{
+						return new AMQPLibConnectorSsl();
+					} 
+					else 
+					{
+						return new AMQPLibConnector();
+					}
 				}
-			}
 			break;
 
 			case 'redis':
-			if($caps->TestAndLoadPredis() === true) {
-				return new RedisConnector();
-			}
+				if($caps->TestAndLoadPredis() === true) 
+				{
+					return new RedisConnector();
+				}
 			break;
 
 			default:
