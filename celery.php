@@ -170,7 +170,7 @@ abstract class CeleryAbstract
 		}
 
 		if (!$this->isConnected) {
-			$this->amqp->Connect($this->connection);
+			$this->broker_amqp->Connect($this->broker_connection);
 			$this->isConnected = true;
 		}
 
@@ -253,12 +253,12 @@ abstract class CeleryAbstract
 	 */
 	public function getAsyncResultMessage($taskName, $taskId, $args = null, $removeMessageFromQueue = true)
 	{
-		$result = new AsyncResult($taskId, $this->connection_details, $taskName, $args);
+		$result = new AsyncResult($taskId, $this->backend_connection_details, $taskName, $args);
 
 		$messageBody = $result->amqp->GetMessageBody(
 			$result->connection,
 			$taskId,
-			$this->connection_details['result_expire'],
+			$this->backend_connection_details['result_expire'],
 			$removeMessageFromQueue
 		);
 
