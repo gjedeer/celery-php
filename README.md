@@ -6,12 +6,13 @@ Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php), th
 	CELERY_TASK_RESULT_EXPIRES = None
 	CELERY_TRACK_STARTED = False
 
-PECL-AMQP is supported in version 1.0.0 and higher because its API has been completely remade when it entered 1.0. 
-There is a separate branch for 0.3.
+The required PECL-AMQP version is at least 1.0. Last version tested is 1.4.
 
-Last PHP-amqplib version tested is 2.2.6.
+Last PHP-amqplib version tested is 2.5.1.
 
-Last Celery version tested is 3.1.11
+Last predis version tested is 1.0.1.
+
+Last Celery version tested is 3.1.18
 
 [API documentation](https://massivescale.net/celery-php/li_celery-php.html)
 
