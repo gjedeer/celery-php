@@ -105,10 +105,13 @@ abstract class CeleryAbstract
 	private $backend_connection_details = array();
 	private $backend_amqp = null;
 
+	private $isConnected = false;
+
 	private function setDefaultValues($details) {
 		$defaultValues = array("host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => array());
 
 		$returnValue = array();
+
 		foreach(array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options') as $detail)
 		{
 			if (!array_key_exists($detail, $details)) { $returnValue[$detail] = $defaultValues[$detail]; }
@@ -151,14 +154,23 @@ abstract class CeleryAbstract
 	 * Post a task to Celery
 	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
 	 * @param array $args Array of arguments (kwargs call when $args is associative)
+	 * @param bool $async_result Set to false if you don't need the AsyncResult object returned
+	 * @param string $routing_key Set to routing key name if you're using something other than "celery"
+	 * @param array $task_args Additional settings for Celery - normally not needed
 	 * @return AsyncResult
 	 */
-	function PostTask($task, $args, $async_result=true,$routing_key="celery")
+	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
 	{
 		if(!is_array($args))
 		{
 			throw new CeleryException("Args should be an array");
 		}
+
+		if (!$this->isConnected) {
+			$this->amqp->Connect($this->connection);
+			$this->isConnected = true;
+		}
+
 		$id = uniqid('php_', TRUE);
 
 		/* $args is numeric -> positional args */
@@ -172,18 +184,27 @@ abstract class CeleryAbstract
 			$kwargs = $args;
 			$args = array();
 		}
-                                                                            
-		$task_array = array(
-			'id' => $id,
-			'task' => $task,
-			'args' => $args,
-			'kwargs' => (object)$kwargs,
+                
+		 /* 
+		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+		 *	The usecase of this field is as follows:
+		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
+		 */
+		$task_array = array_merge(
+			array(
+				'id' => $id,
+				'task' => $task,
+				'args' => $args,
+				'kwargs' => (object)$kwargs,
+			),
+			$task_args
 		);
+		
 		$task = json_encode($task_array);
 		$params = array('content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
 			'immediate' => false,
-			);
+		 );
 
 		if($this->broker_connection_details['persistent_messages'])
 		{
@@ -199,10 +220,10 @@ abstract class CeleryAbstract
 			$params
 		);
 
-        if(!$success) 
-        {
-           throw new CeleryPublishException();
-        }
+		if(!$success)
+		{
+		   throw new CeleryPublishException();
+		}
 
         if($async_result) 
         {
@@ -213,6 +234,34 @@ abstract class CeleryAbstract
 			return true;
 		}
 	}
+
+	/**
+	 * Get the current message of the async result. If there is no async result for a task in the queue false will be returned.
+	 * Can be used to pass custom states to the client as mentioned in http://celery.readthedocs.org/en/latest/userguide/tasks.html#custom-states
+	 *
+	 * @param string $taskName Name of the called task, like 'tasks.add'
+	 * @param string $taskId The Task ID - from AsyncResult::getId()
+	 * @param null|array $args Task arguments
+	 * @param boolean $removeMessageFromQueue whether to remove the message from queue. If not celery will remove the message
+	 * due to its expire parameter
+	 * @return array|boolean array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
+	 * 			or false if result not ready yet
+	 *
+	 */
+	public function getAsyncResultMessage($taskName, $taskId, $args = null, $removeMessageFromQueue = true)
+	{
+		$result = new AsyncResult($taskId, $this->connection_details, $taskName, $args);
+
+		$messageBody = $result->amqp->GetMessageBody(
+			$result->connection,
+			$taskId,
+			$this->connection_details['result_expire'],
+			$removeMessageFromQueue
+		);
+
+		return $messageBody;
+	}
+
 }
 
 /*
@@ -264,7 +313,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire']);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
 		
 		if($message !== false)
 		{
@@ -282,7 +331,7 @@ class AsyncResult
 	 */
 	static private function getmicrotime()
 	{
-		    list($usec, $sec) = explode(" ",microtime()); 
+			list($usec, $sec) = explode(" ",microtime());
 			return ((float)$usec + (float)$sec); 
 	}
 
@@ -292,7 +341,7 @@ class AsyncResult
 	 */
 	 function getId()
 	 {
-	 	return $this->task_id;
+		return $this->task_id;
 	 }
 
 	/**
@@ -385,43 +434,25 @@ class AsyncResult
 	 */
 	function get($timeout=10, $propagate=TRUE, $interval=0.5)
 	{
-		/**
-		 * This is an ugly workaround for PHP-AMQPLIB lack of support for fractional wait time
-		 * @TODO remove the whole 'if' when php-amqp accepts https://github.com/videlalvaro/php-amqplib/pull/80
-		 */
-		$original_interval = $interval;
-		if(property_exists($this->connection, 'wait_timeout'))
-		{
-			if($this->connection->wait_timeout < $interval)
-			{
-				$interval = 0;
-			}
-			else
-			{
-				$interval -= $this->connection->wait_timeout;
-			}
-		}
-
 		$interval_us = (int)($interval * 1000000);
-		$iteration_limit = ceil($timeout / $original_interval);
 
 		$start_time = self::getmicrotime();
 		while(self::getmicrotime() - $start_time < $timeout)
-        {
-                if($this->isReady())
-                {
-                        break;
-                }
+		{
+				if($this->isReady())
+				{
+						break;
+				}
 
-                usleep($interval_us);
-        }
+				usleep($interval_us);
+		}
 
-        if(!$this->isReady())
-        {
-                throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
-        }
+		if(!$this->isReady())
+		{
+				throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
+		}
 
-        return $this->getResult();
+		return $this->getResult();
 	}
 
 	/**

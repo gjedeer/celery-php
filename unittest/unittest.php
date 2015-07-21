@@ -46,6 +46,8 @@ composer global require 'phpunit/phpunit'
  phpunit CeleryAMQPLibTest unittest/CeleryAMQPLibTest.php
  */
 
+/* Include Composer installed packages if available */
+include_once('vendor/autoload.php');
 require_once('celery.php');
 
 
@@ -232,6 +234,31 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(8, $rv);
 		$this->assertEquals(8, $result->result);
 		$this->assertTrue($result->successful());
+	}
+
+	public function testGetAsyncResult()
+	{
+		$c = $this->get_c();
+
+		$result_tmp = $c->PostTask('tasks.add', array(427552,1));
+		$id = $result_tmp->getId();
+		sleep(1);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
+		$result = $c->getAsyncResultMessage('tasks.add', $id, null, true);
+		$this->assertTrue(strpos($result['body'], '427553') >= 0);
+	}
+
+	public function testReturnedArray()
+	{
+	   $c = $this->get_c();
+
+	   $result = $c->PostTask('tasks.get_fibonacci', array());
+	   $rv = $result->wait();
+	   $this->assertEquals(1, $rv[0]);
+	   $this->assertEquals(34, $rv[8]);
 	}
 }
 

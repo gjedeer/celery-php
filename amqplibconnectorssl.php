@@ -1,7 +1,6 @@
 <?php
 
 require_once('amqp.php');
-require_once('vendor/autoload.php');
 
 use PhpAmqpLib\Connection\AMQPSSLConnection;
 use PhpAmqpLib\Message\AMQPMessage;

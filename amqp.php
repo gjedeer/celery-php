@@ -1,8 +1,5 @@
 <?php
 
-/* Include Composer installed packages if available */
-@include_once('vendor/autoload.php');
-
 /* Include namespaced code only if PhpAmqpLib available */
 if(class_exists('PhpAmqpLib\Connection\AMQPConnection'))
 {
@@ -122,10 +119,11 @@ abstract class AbstractAMQPConnector
 	 * Return result of task execution for $task_id
 	 * @param object $connection Backend-specific connection object returned by GetConnectionObject()
 	 * @param string $task_id Celery task identifier
+	 * @param boolean $removeMessageFromQueue whether to remove message from queue
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
 	 * 			or false if result not ready yet
 	 */
-	abstract function GetMessageBody($connection, $task_id);
+	abstract function GetMessageBody($connection, $task_id, $removeMessageFromQueue);
 }
 
 

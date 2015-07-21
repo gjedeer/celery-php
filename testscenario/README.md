@@ -14,4 +14,14 @@
 	celery worker -l DEBUG -c 20 --config=celeryredisconfig
 
 	# In another terminal
-	phpunit testscenario
+	phpunit unittest
+
+## Testing Redis authentication
+	echo requirepass test >>/etc/redis/redis.conf
+	service redis-server restart
+
+	cd testscenario
+	celery worker -l DEBUG -c 20 --config=celeryredisauthconfig
+
+	# In another terminal
+	phpunit CeleryRedisAuthTest unittest/CeleryRedisAuthTest.php
