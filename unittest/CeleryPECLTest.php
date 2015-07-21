@@ -48,7 +48,6 @@ class CeleryPECLTest extends CeleryTest {
 				'celery', /* binding */
 				5672, /* port */
 				'pecl' /* connector */
-			)
 		);
 	}
 }
