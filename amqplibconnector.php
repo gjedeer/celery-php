@@ -42,7 +42,7 @@
 
 require_once('amqp.php');
 
-use PhpAmqpLib\Connection\AMQPConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
@@ -70,7 +70,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
 	function GetConnectionObject($details)
 	{
-		return new AMQPConnection(
+		return new AMQPStreamConnection(
 			$details['host'],
 			$details['port'],
 			$details['login'],
