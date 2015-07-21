@@ -46,31 +46,44 @@
  * @package celery-php
  */
 class CeleryException extends Exception {};
+
 /**
  * Emited by AsyncResult::get() on timeout
  * @package celery-php
  */
 class CeleryTimeoutException extends CeleryException {};
+
+/**
+ * Emited by CeleryAbstract::PostTask() connection failures etc
+ * @package celery-php
+ */
 class CeleryPublishException extends CeleryException {};
 
 require('amqp.php');
 
-class CeleryWithBackend extends CeleryAbstract 
-{
-	function __construct($broker_connection, $backend_connection=false) 
-	{
-		if($backend_connection == false) 
-		{ 
-			$backend_connection = $broker_connection;
-		}
-
-		$items = $this->BuildConnection($broker_connection);
-		$items = $this->BuildConnection($backend_connection, true);
-	}
-}
-
+/**
+ * Simple client for a Celery server
+ *
+ * for when queue and results are in the same broker
+ * Use this class if you don't know what the above means
+ * @package celery-php
+ */
 class Celery extends CeleryAbstract 
 {
+   /**
+    * @param string host
+	* @param string login
+	* @param string password
+	* @param string vhost AMQP vhost, may be left empty or NULL for non-AMQP backends like Redis
+	* @param string exchange AMQP exchange to use. For Redis it maps to queue key name. See CELERY_DEFAULT_EXCHANGE in Celery docs. (set to 'celery' when in doubt)
+	* @param string binding AMQP binding a.k.a. routing key. See CELERY_DEFAULT_ROUTING_KEY. (set to 'celery' when in doubt)
+	* @param int port
+	* @param string connector Which connector library to use. One of: 'pecl', 'php-amqplib', 'php-amqplib-ssl', 'redis'
+	* @param bool persistent_messages False = transient queue, True = persistent queue. Check "Using Transient Queues" in Celery docs (set to false when in doubt)
+	* @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
+	* @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
+	*/
+
 	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector = false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
 	{
 		$broker_connection = array(
@@ -92,9 +105,31 @@ class Celery extends CeleryAbstract
 	}
 }
 
+/**
+ * Client for a Celery server - with a constructor supporting separate backend queue
+ * @package celery-php
+ */
+class CeleryAdvanced extends CeleryAbstract 
+{
+    /**
+	 * @param array broker_connection - array for connecting to task queue, see Celery class above for supported keys
+	 * @param array backend_connection - array for connecting to result backend, see Celery class above for supported keys
+	 */
+	function __construct($broker_connection, $backend_connection=false) 
+	{
+		if($backend_connection == false) 
+		{ 
+			$backend_connection = $broker_connection;
+		}
+
+		$items = $this->BuildConnection($broker_connection);
+		$items = $this->BuildConnection($backend_connection, true);
+	}
+}
+
 
 /**
-* Client for a Celery server
+* Client for a Celery server - abstract base class implementing actual logic
 * @package celery-php
 */
 abstract class CeleryAbstract
