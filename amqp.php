@@ -21,13 +21,13 @@ class AMQPCapabilities
 		}
 	}
 
-	public function testLib($library) {
+	public function TestLib($library) {
 		$hasLib = $this->loader->findFile($library);
 		return ($hasLib !== false);
 	}
 
-	public function testAndLoadPhpAmqpLib() {
-		$hasLib = $this->testLib('PhpAmqpLib\Connection\AMQPStreamConnection');
+	public function TestAndLoadPhpAmqpLib() {
+		$hasLib = $this->TestLib('PhpAmqpLib\Connection\AMQPStreamConnection');
 		if($hasLib) {
 			require_once('amqplibconnector.php');
 			require_once('amqplibconnectorssl.php');
@@ -35,8 +35,8 @@ class AMQPCapabilities
 		return $hasLib;
 	}
 
-	public function testAndLoadPredis() {
-		$hasLib = $this->testLib('Predis\Autoloader');
+	public function TestAndLoadPredis() {
+		$hasLib = $this->TestLib('Predis\Autoloader');
 		if($hasLib) {
 			/* Include only if predis available */
 			require_once('redisconnector.php');
@@ -44,7 +44,7 @@ class AMQPCapabilities
 		return $hasLib;
 	}
 
-	public function testAndLoadPECL() {
+	public function TestAndLoadPECL() {
 		$hasLib = class_exists('AMQPConnection') && extension_loaded('amqp');
 		if($hasLib) {
 			require_once('amqppeclconnector.php');
@@ -86,14 +86,14 @@ abstract class AbstractAMQPConnector
 
 		switch($name) {
 			case 'pecl':
-			if($caps->testAndLoadPECL() === true) {
+			if($caps->TestAndLoadPECL() === true) {
 				return new PECLAMQPConnector();
 			}
 			break;
 
 			case 'php-amqplib':
 			case 'php-amqplib-ssl':
-			if($caps->testAndLoadPhpAmqpLib() === true) {
+			if($caps->TestAndLoadPhpAmqpLib() === true) {
 				 if($name === 'php-amqplib-ssl') {
 					return new AMQPLibConnectorSsl();
 				} else {
@@ -103,7 +103,7 @@ abstract class AbstractAMQPConnector
 			break;
 
 			case 'redis':
-			if($caps->testAndLoadPredis() === true) {
+			if($caps->TestAndLoadPredis() === true) {
 				return new RedisConnector();
 			}
 			break;
@@ -121,8 +121,8 @@ abstract class AbstractAMQPConnector
 	static function GetBestInstalledExtensionName($ssl = false)
 	{
 		$caps = new AMQPCapabilities();
-		$hasPhpAmqpLib = $caps->testAndLoadPhpAmqpLib();
-		$hasPECL = $caps->testAndLoadPECL();
+		$hasPhpAmqpLib = $caps->TestAndLoadPhpAmqpLib();
+		$hasPECL = $caps->TestAndLoadPECL();
 
 		if($ssl === true && $hasPhpAmqpLib === true) //pecl doesn't support ssl
 		{
