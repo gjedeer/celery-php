@@ -1,6 +1,5 @@
 <?php
 
-
 class AMQPCapabilities
 {
 	protected $loader;
@@ -17,7 +16,7 @@ class AMQPCapabilities
 
 		// If there is now loader, fail.
 		if($this->loader == null) {
-			throw new Exception("Composer not installed");
+			throw new CeleryException("Composer not installed");
 		}
 	}
 
@@ -109,9 +108,9 @@ abstract class AbstractAMQPConnector
 			break;
 
 			default:
-			throw new Exception('Unknown extension name ' . $name);
+			throw new CeleryException('Unknown extension name ' . $name);
 		}
-		throw new Exception('AMQP extension ' . $name . ' is not installed properly using Composer');
+		throw new CeleryException('AMQP extension ' . $name . ' is not installed properly using Composer');
 	}
 
 	/**
@@ -137,7 +136,7 @@ abstract class AbstractAMQPConnector
 			return 'php-amqplib';
 		}
 
-		throw new Exception('You must install at least one AMQP extension using Composer');
+		throw new CeleryException('You must install at least one AMQP extension using Composer');
 	}
 
 	/**
