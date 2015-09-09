@@ -62,6 +62,45 @@ class CeleryPublishException extends CeleryException {};
 require('amqp.php');
 
 /**
+ * A container for arbitrary configuration for instances of
+ * the Celery class. Meant to reduce the 'parameter bloat'
+ * of the Celery::__construct() method.
+ */
+class CeleryConfig {
+
+	/**
+	 * @var array
+	 *
+	 * Configuration values itself. Any used configuration keys
+	 * should have a default value listed and defined here,
+	 * so it is apparent what parameters for the Celery instance
+	 * can be modified.
+	 */
+	protected $config = array (
+		'keep_messages_in_queue' => false,
+	);
+
+	public function __construct(array $config = array()) {
+		$this->config = $config;
+	}
+
+	public function __get($name) {
+
+		if (!array_key_exists($name, $this->config)) {
+			throw new \LogicException("Config parameter '$name' not set");
+		}
+
+		return $this->config[$name];
+
+	}
+
+	public function __set($name, $value) {
+		throw new \LogicException("Cannot modify already created " . __CLASS__ . " object");
+	}
+
+}
+
+/**
  * Simple client for a Celery server
  *
  * for when queue and results are in the same broker
@@ -82,10 +121,24 @@ class Celery extends CeleryAbstract
 	* @param bool persistent_messages False = transient queue, True = persistent queue. Check "Using Transient Queues" in Celery docs (set to false when in doubt)
 	* @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
 	* @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
+	* @param CeleryObject Celery configuration object providint additional finess through modifying behaviour of Celery-PHP
 	*/
 
-	function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector = false, $persistent_messages=false, $result_expire=0, $ssl_options = array() )
-	{
+	function __construct(
+		$host,
+		$login,
+		$password,
+		$vhost,
+		$exchange = 'celery',
+		$binding = 'celery',
+		$port = 5672,
+		$connector = false,
+		$persistent_messages = false,
+		$result_expire = 0,
+		$ssl_options = array(),
+		CeleryConfig $config_object = null
+	) {
+
 		$broker_connection = array(
 			'host' => $host,
 			'login' => $login,
@@ -98,10 +151,14 @@ class Celery extends CeleryAbstract
 			'result_expire' => $result_expire,
 			'ssl_options' => $ssl_options
 		);
+
+		$this->config = $config_object ?: new ConfigObject;
+
 		$backend_connection = $broker_connection;
 
 		$items = $this->BuildConnection($broker_connection);
 		$items = $this->BuildConnection($backend_connection, true);
+
 	}
 }
 
@@ -144,6 +201,8 @@ abstract class CeleryAbstract
 	private $backend_amqp = null;
 
 	private $isConnected = false;
+
+	protected $config = null;
 
 	private function SetDefaultValues($details) {
 		$defaultValues = array("host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => array());
@@ -265,7 +324,7 @@ abstract class CeleryAbstract
 
         if($async_result) 
         {
-			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
+			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args, !$this->config->keep_messages_in_queue);
         } 
         else 
         {
@@ -314,6 +373,7 @@ class AsyncResult
 	private $complete_result; // Backend-dependent message instance (AMQPEnvelope or PhpAmqpLib\Message\AMQPMessage)
 	private $body; // decoded array with message body (whatever Celery task returned)
 	private $amqp = null; // AbstractAMQPConnector implementation
+	private $remove_from_queue = true;
 
 	/**
 	 * Don't instantiate AsyncResult yourself, used internally only
@@ -321,8 +381,9 @@ class AsyncResult
 	 * @param array $connection_details used to initialize AMQPConnection, keys are the same as args to Celery::__construct
 	 * @param string task_name
 	 * @param array task_args
+	 * @param bool Remove the result message from queue after fetching it?
 	 */
-	function __construct($id, $connection_details, $task_name=NULL, $task_args=NULL)
+	function __construct($id, $connection_details, $task_name=NULL, $task_args=NULL, $remove_from_queue = true)
 	{
 		$this->task_id = $id;
 		$this->connection = Celery::InitializeAMQPConnection($connection_details);
@@ -330,6 +391,7 @@ class AsyncResult
 		$this->task_name = $task_name;
 		$this->task_args = $task_args;
 		$this->amqp = AbstractAMQPConnector::GetConcrete($connection_details['connector']);
+		$this->remove_from_queue = $remove_from_queue;
 	}
 
 	function __wakeup()
@@ -351,7 +413,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id, $this->connection_details['result_expire'], $this->remove_from_queue);
 		
 		if($message !== false)
 		{
