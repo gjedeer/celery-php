@@ -414,13 +414,16 @@ class AsyncResult
 		}
 
 		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id, $this->connection_details['result_expire'], $this->remove_from_queue);
-		
+
 		if($message !== false)
 		{
 			$this->complete_result = $message['complete_result'];
 			$this->body = json_decode(
 				$message['body']
 			);
+
+			return true;
+
 		}
 
 		return false;
@@ -625,8 +628,10 @@ class AsyncResult
 	 * Send revoke signal to all workers
 	 * Does nothing in PHP client
 	 */
-	function revoke()
+	function revoke($terminate = false)
 	{
+		// TODO
+		// return $this->amqp->RevokeTask($this->connection, $this->connection_details, $this->task_id);
 	}
 
 	/**
