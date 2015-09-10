@@ -71,8 +71,8 @@ class CeleryConfig {
 	/**
 	 * @var array
 	 *
-	 * Configuration values itself. Any used configuration keys
-	 * should have a default value listed and defined here,
+	 * Configuration values. All possible configuration keys
+	 * should be listed here and have a default value defined,
 	 * so it is apparent what parameters for the Celery instance
 	 * can be modified.
 	 */
@@ -152,7 +152,7 @@ class Celery extends CeleryAbstract
 			'ssl_options' => $ssl_options
 		);
 
-		$this->config = $config_object ?: new ConfigObject;
+		$this->config = $config_object ?: new CeleryConfig;
 
 		$backend_connection = $broker_connection;
 
