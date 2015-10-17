@@ -17,9 +17,10 @@
             "role": "Developer"
         }
     ],
-    "require": {
+    "suggest": {
 		"videlalvaro/php-amqplib": ">=2.4.0",
         "predis/predis": ">=0.8.5"
+        "ext-amqp": ">=1.0.0"
     },
     "autoload": {
         "classmap": ["celery.php"]
