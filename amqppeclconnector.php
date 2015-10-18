@@ -33,6 +33,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	function Connect($connection)
 	{
 		$connection->connect();
+		$connection->channel = new AMQPChannel($connection);
 	}
 
 	/**
@@ -44,12 +45,11 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 */
 	function PostToExchange($connection, $details, $task, $params)
 	{
-		$ch = new AMQPChannel($connection);
+		$ch = $connection->channel;
 		$xchg = new AMQPExchange($ch);
 		$xchg->setName($details['exchange']);
 
 		$success = $xchg->publish($task, $details['binding'], 0, $params);
-		$connection->disconnect();
 
 		return $success;
 	}
@@ -65,7 +65,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	function GetMessageBody($connection, $task_id, $removeMessageFromQueue = true)
 	{
 		$this->Connect($connection);
-		$ch = new AMQPChannel($connection);
+		$ch = $connection->channel;
 		$q = new AMQPQueue($ch);
 		$q->setName($task_id);
 		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
