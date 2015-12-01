@@ -235,11 +235,4 @@ Predis\Autoloader::register();
 	   return $connect;
 	}
 
-	function RevokeTask($connection, $details, $task_id, $terminate = false) {
-
-		// TODO
-		// $connection->lPush($details['exchange'], $this->ToStr($message));
-
-	}
-
- }
+}
