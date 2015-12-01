@@ -628,10 +628,8 @@ class AsyncResult
 	 * Send revoke signal to all workers
 	 * Does nothing in PHP client
 	 */
-	function revoke($terminate = false)
+	function revoke()
 	{
-		// TODO
-		// return $this->amqp->RevokeTask($this->connection, $this->connection_details, $this->task_id);
 	}
 
 	/**
