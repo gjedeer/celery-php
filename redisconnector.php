@@ -66,7 +66,7 @@ Predis\Autoloader::register();
 	*/
 	protected function GetHeaders() 
 	{
-	   return array();
+	   return new stdClass;
 	}
 
 	/**
