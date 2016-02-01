@@ -106,7 +106,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
 		$ch->queue_bind(
 			$details['binding'], 	/* queue name - "celery" */
-			$details['exchange'] 	/* exchange name - "celery" */
+			$details['exchange']. 	/* exchange name - "celery" */
+			$details['routing_key']
 		);
 
 		$msg = new AMQPMessage(
