@@ -139,7 +139,7 @@ abstract class CeleryAbstract
 	private $broker_connection_details = array();
 	private $broker_amqp = null;
 
-	private $backend_conneciton = null;
+	private $backend_connection = null;
 	private $backend_connection_details = array();
 	private $backend_amqp = null;
 
