@@ -47,7 +47,7 @@ _tip: if using RabbitMQ guest user, set "/" vhost_
 
 ## GET ASYNC RESULT MESSAGE
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
-	$message = $c->getAsyncResultMessage('tasks.add', 'taskId);
+	$message = $c->getAsyncResultMessage('tasks.add', 'taskId');
 
 ## PYTHON-LIKE API
 
