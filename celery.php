@@ -395,7 +395,7 @@ class AsyncResult
 			return $this->complete_result;
 		}
 
-		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
+		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id, $this->connection_details['result_expire'], true);
 		
 		if($message !== false)
 		{
