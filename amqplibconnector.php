@@ -172,22 +172,22 @@ class AMQPLibConnector extends AbstractAMQPConnector
 			}
 
 			$ch->queue_declare(
-				$task_id, 				/* queue name */
-				false,					/* passive */
-				true,					/* durable */
-				false,					/* exclusive */
-				true,					/* auto_delete */
-				false,                  /*no wait*/
+				$task_id, 		/* queue name */
+				false,			/* passive */
+				true,			/* durable */
+				false,			/* exclusive */
+				true,			/* auto_delete */
+				false,                  /* no wait */
 				$expire_args
 			);
 
 			$ch->basic_consume(
-				$task_id, 	/* queue */
-				'', 		/* consumer tag */
-				false, 		/* no_local */
-				false, 		/* no_ack */
-				false,		/* exclusive */
-				false,		/* nowait */
+				$task_id, 		/* queue */
+				'', 			/* consumer tag */
+				false, 			/* no_local */
+				false, 			/* no_ack */
+				false,			/* exclusive */
+				false,			/* nowait */
 				array($this, 'Consume')	/* callback */
 			);
 			$this->receiving_channel = $ch;
