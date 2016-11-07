@@ -44,6 +44,7 @@ require_once('amqp.php');
 
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 
 /**
  * Driver for pure PHP implementation of AMQP protocol
@@ -84,9 +85,28 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	{
 	}
 
-	function PostToExchange($connection, $details, $task, $params)
+	/**
+	 * Return an AMQPTable from a given array
+	 * @param array $headers Associative array of headers to convert to a table
+	 */
+	private function HeadersToTable($headers)
+	{
+	    return new AMQPTable($headers);
+	}
+
+	/**
+	 * Post a task to exchange specified in $details
+	 * @param AMQPConnection $connection Connection object
+	 * @param array $details Array of connection details
+	 * @param string $task JSON-encoded task
+	 * @param array $params AMQP message parameters
+	 */
+	function PostToExchange($connection, $details, $task, $params, $headers)
 	{
 		$ch = $connection->channel();
+
+		$application_headers = $this->HeadersToTable($headers);
+		$params['application_headers'] = $application_headers;
 
 		$ch->queue_declare(
 			$details['binding'], 	/* queue name - "celery" */

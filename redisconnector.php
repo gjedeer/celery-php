@@ -118,10 +118,16 @@ Predis\Autoloader::register();
 	}
 
 	/**
-	* Post the message to Redis
-	* This function implements the AbstractAMQPConnector interface
-	*/
-	public function PostToExchange($connection, $details, $task, $params) 
+	 * Post the message to Redis
+	 * This function implements the AbstractAMQPConnector interface
+	 * @param AMQPConnection $connection Connection object
+	 * @param array $details Array of connection details
+	 * @param string $task JSON-encoded task
+	 * @param array $params AMQP message parameters
+	 * @param array $headers Application-headers
+	 * @return bool true if posted successfuly
+	 */
+	public function PostToExchange($connection, $details, $task, $params, $headers) 
 	{
 	   $connection = $this->Connect($connection);
 	   $body = json_decode($task, true);

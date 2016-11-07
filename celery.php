@@ -61,6 +61,9 @@ class CeleryPublishException extends CeleryException {};
 
 require('amqp.php');
 
+define('ARGSREPR_MAXSIZE', 1024);
+define('KWARGSREPR_MAXSIZE', 1024);
+
 /**
  * Simple client for a Celery server
  *
@@ -143,6 +146,8 @@ abstract class CeleryAbstract
 	private $backend_connection_details = array();
 	private $backend_amqp = null;
 
+	private $origin = null;
+
 	private $isConnected = false;
 
 	private function SetDefaultValues($details) {
@@ -155,6 +160,9 @@ abstract class CeleryAbstract
 			if (!array_key_exists($detail, $details)) { $returnValue[$detail] = $defaultValues[$detail]; }
 			else $returnValue[$detail] = $details[$detail];
 		}
+
+		$this->origin = getmypid().gethostname();
+
 		return $returnValue;
 	}
 
@@ -209,53 +217,88 @@ abstract class CeleryAbstract
 			$this->isConnected = true;
 		}
 
-		$id = uniqid('php_', TRUE);
+		$id = uniqid($task, TRUE);
 
 		/* $args is numeric -> positional args */
 		if(array_keys($args) === range(0, count($args) - 1))
 		{
 			$kwargs = array();
+			$args_repr = implode(', ', $args);
+			$kwargs_repr = '';
 		}
 		/* $args is associative -> contains kwargs */
 		else
 		{
 			$kwargs = $args;
 			$args = array();
+			$args_repr = '';
+			$kwargs_strs = Array();
+			foreach($kwargs as $k => $v) {
+				$kwargs_strs[] = $k . ' = ' . json_encode($v);
+			}
+			$kwargs_repr = implode(', ', $kwargs_strs);
+			unset($kwargs_strs);
 		}
+		$args_repr = substr($args_repr, 0, ARGSREPR_MAXSIZE);
+		$kwargs_repr = substr($kwargs_repr, 0, ARGSREPR_MAXSIZE);
                 
 		 /* 
 		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
 		 *	The usecase of this field is as follows:
 		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
-		 */
-		$task_array = array_merge(
-			array(
-				'id' => $id,
-				'task' => $task,
-				'args' => $args,
-				'kwargs' => (object)$kwargs,
+		  */ 
+		$headers_array = Array(
+			'lang' => "php",
+			'task' => $task,
+			'id' => $id,
+			'eta' => NULL,
+			'expires' => NULL,
+			'group' => NULL,
+			'retries' => 0,
+			'timelimit' => array(NULL, NULL),
+			'root_id' => $id,
+			'parent_id' => NULL,
+			'argsrepr' => $args_repr,
+			'kwargsrepr' => $kwargs_repr,
+			'origin' => $this->origin,
+		);
+
+		$params = array_merge(
+			Array(
+				'content_type' => 'application/json',
+				'content_encoding' => 'UTF-8',
+				'immediate' => false,
 			),
 			$task_args
 		);
+
+		/* Prepare the body */
+		$task_array = Array(
+			$args,
+			(object)$kwargs,
+			Array(
+				'callbacks' => NULL,
+				'errbacks' => NULL,
+				'chain' => NULL,
+				'chord' => NULL,
+			),
+		);
 		
 		$task = json_encode($task_array);
-		$params = array('content_type' => 'application/json',
-			'content_encoding' => 'UTF-8',
-			'immediate' => false,
-		 );
 
 		if($this->broker_connection_details['persistent_messages'])
 		{
 			$params['delivery_mode'] = 2;
 		}
 
-        $this->broker_connection_details['routing_key'] = $routing_key;
+		$this->broker_connection_details['routing_key'] = $routing_key;
 
 		$success = $this->broker_amqp->PostToExchange(
 			$this->broker_connection,
 			$this->broker_connection_details,
 			$task,
-			$params
+			$params,
+			$headers_array
 		);
 
 		if(!$success)
@@ -263,12 +306,12 @@ abstract class CeleryAbstract
 		   throw new CeleryPublishException();
 		}
 
-        if($async_result) 
-        {
-			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
-        } 
-        else 
-        {
+		if($async_result) 
+		{
+			return new AsyncResult($id, $this->backend_connection_details, $task, $args);
+		} 
+		else 
+		{
 			return true;
 		}
 	}
@@ -477,17 +520,17 @@ class AsyncResult
 		$start_time = self::getmicrotime();
 		while(self::getmicrotime() - $start_time < $timeout)
 		{
-				if($this->isReady())
-				{
-						break;
-				}
+			if($this->isReady())
+			{
+				break;
+			}
 
-				usleep($interval_us);
+			usleep($interval_us);
 		}
 
 		if(!$this->isReady())
 		{
-				throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
+			throw new CeleryTimeoutException(sprintf('AMQP task %s(%s) did not return after %d seconds', $this->task_name, json_encode($this->task_args), $timeout), 4);
 		}
 
 		return $this->getResult();
