@@ -181,8 +181,6 @@ class AMQPLibConnector extends AbstractAMQPConnector
 				$expire_args
 			);
 
-			$ch->queue_bind($task_id, 'celeryresults');
-
 			$ch->basic_consume(
 				$task_id, 	/* queue */
 				'', 		/* consumer tag */

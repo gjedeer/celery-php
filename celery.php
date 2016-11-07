@@ -268,6 +268,7 @@ abstract class CeleryAbstract
 				'content_type' => 'application/json',
 				'content_encoding' => 'UTF-8',
 				'immediate' => false,
+				'reply_to' => $id,
 			),
 			$task_args
 		);
