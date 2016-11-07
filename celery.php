@@ -156,7 +156,7 @@ class Celery extends CeleryAbstract
 			'ssl_options' => $ssl_options
 		);
 
-		$this->config = $config_object ?: new CeleryConfig;
+		$this->config = $config_object ?: new CeleryConfig();
 
 		$backend_connection = $broker_connection;
 
@@ -175,9 +175,13 @@ class CeleryAdvanced extends CeleryAbstract
     /**
 	 * @param array broker_connection - array for connecting to task queue, see Celery class above for supported keys
 	 * @param array backend_connection - array for connecting to result backend, see Celery class above for supported keys
+	 * @param CeleryConfig config_object - an object containing extra settings
 	 */
-	function __construct($broker_connection, $backend_connection=false) 
-	{
+	function __construct(
+		$broker_connection, 
+		$backend_connection=false, 
+		CeleryConfig $config_object = null
+	) {
 		if($backend_connection == false) 
 		{ 
 			$backend_connection = $broker_connection;
@@ -185,6 +189,7 @@ class CeleryAdvanced extends CeleryAbstract
 
 		$items = $this->BuildConnection($broker_connection);
 		$items = $this->BuildConnection($backend_connection, true);
+		$this->config = $config_object ?: new CeleryConfig();
 	}
 }
 
