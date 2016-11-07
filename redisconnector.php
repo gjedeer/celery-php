@@ -72,7 +72,7 @@ Predis\Autoloader::register();
 	/**
 	* Prepare the message sent to Celery
 	*/
-	protected function GetMessage($task) 
+	protected function GetMessage($task)
 	{
 	   $result = Array();
 	   $result['body'] = base64_encode($task);
@@ -240,4 +240,5 @@ Predis\Autoloader::register();
 	   ));
 	   return $connect;
 	}
- }
+
+}
