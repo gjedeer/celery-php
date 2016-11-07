@@ -2,17 +2,19 @@ PHP client capable of executing [Celery](http://celeryproject.org/) tasks and re
 
 Uses [AMQP extension from PECL](http://www.php.net/manual/en/amqp.setup.php), the [PHP AMQP implementation](https://github.com/videlalvaro/php-amqplib) or Redis and the following settings in Celery:
 
-	CELERY_RESULT_SERIALIZER = "json"
-	CELERY_TASK_RESULT_EXPIRES = None
-	CELERY_TRACK_STARTED = False
+      task_serializer = 'json'
+      result_backend = 'rpc://'
+      result_serializer = 'json'
+
+Celery-PHP 2.1 moved to Celery task message protocol v2. *This needs at least Celery 3.1.25.*
 
 The required PECL-AMQP version is at least 1.0. Last version tested is 1.4.
 
-Last PHP-amqplib version tested is 2.5.1.
+Last PHP-amqplib version tested is 2.6.3.
 
 Last predis version tested is 1.0.1.
 
-Last Celery version tested is 3.1.19
+Last Celery version tested is 4.0.0rc7
 
 [API documentation](https://massivescale.net/celery-php/li_celery-php.html)
 
