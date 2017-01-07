@@ -34,6 +34,7 @@
  * gdr@gdr.name
  */
 
+include_once('vendor/autoload.php');
 require_once('celery.php');
 
 $c = new Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery', 5672, 'php-amqplib');

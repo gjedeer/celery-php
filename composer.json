@@ -28,5 +28,8 @@
         "branch-alias": {
             "dev-master": "2.2-dev"
         }
+    },
+    "require": {
+        "php-amqplib/php-amqplib": "^2.6"
     }
 }
