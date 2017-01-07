@@ -134,7 +134,6 @@ Predis\Autoloader::register();
 	public function PostToExchange($connection, $details, $task, $params, $headers) 
 	{
 	   $connection = $this->Connect($connection);
-	   print_r($task);
 	   $message = $this->GetMessage($details, $task, $params, $headers);
 	   $connection->lPush($details['exchange'], $this->ToStr($message));
 
