@@ -50,6 +50,19 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$ch = $connection->channel;
 		$xchg = new AMQPExchange($ch);
 		$xchg->setName($details['exchange']);
+		// Workaround for AMQP not serializing NULL arrays
+		if(isset($headers['timelimit']))
+		{
+			for($i = 0; $i < sizeof($headers['timelimit']); $i++)
+			{
+				if($headers['timelimit'][$i] === NULL)
+				{
+					$headers['timelimit'][$i] = 1e+30;
+				}
+			}
+		}
+		print_r($headers);
+		$params['headers'] = $headers;
 
 		$success = $xchg->publish($task, $details['binding'], 0, $params);
 
