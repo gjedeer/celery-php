@@ -61,24 +61,28 @@ Predis\Autoloader::register();
 	public $celery_result_prefix = 'celery-task-meta-';
 
 	/**
-	* Return headers used sent to Celery
-	* Override this function to set custom headers
-	*/
-	protected function GetHeaders() 
-	{
-	   return new stdClass;
-	}
-
-	/**
 	* Prepare the message sent to Celery
 	*/
-	protected function GetMessage($task) 
+	protected function GetMessage($details, $task, $params, $headers) 
 	{
+	   $body = json_decode($task, true);
 	   $result = Array();
 	   $result['body'] = base64_encode($task);
-	   $result['headers'] = $this->GetHeaders();
+	   $result['headers'] = $headers;
 	   $result['content-type'] = $this->content_type;
-	   $result['content-encoding'] = 'binary';
+	   $result['content-encoding'] = 'utf-8';
+	   $result['properties'] = Array(
+		  'body_encoding' => 'base64',
+		  'reply_to' => $headers['id'],
+		  'correlation_id' => $headers['id'],
+		  'delivery_info' => Array(
+			 'priority' => 0,
+			 'routing_key' => $details['binding'],
+			 'exchange' => $details['exchange'],
+		  ),
+		  'delivery_mode' => $this->GetDeliveryMode($params),
+		  'delivery_tag'  => $headers['id']
+	   );
 	   return $result;
 	}
 
@@ -130,19 +134,8 @@ Predis\Autoloader::register();
 	public function PostToExchange($connection, $details, $task, $params, $headers) 
 	{
 	   $connection = $this->Connect($connection);
-	   $body = json_decode($task, true);
-	   $message = $this->GetMessage($task);
-	   $message['properties'] = Array(
-		  'body_encoding' => 'base64',
-		  'reply_to' => $body['id'],
-		  'delivery_info' => Array(
-			 'priority' => 0,
-			 'routing_key' => $details['binding'],
-			 'exchange' => $details['exchange'],
-		  ),
-		  'delivery_mode' => $this->GetDeliveryMode($params),
-		  'delivery_tag'  => $body['id']
-	   );
+	   print_r($task);
+	   $message = $this->GetMessage($details, $task, $params, $headers);
 	   $connection->lPush($details['exchange'], $this->ToStr($message));
 
 	   return TRUE;

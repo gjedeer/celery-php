@@ -269,6 +269,7 @@ abstract class CeleryAbstract
 				'content_encoding' => 'UTF-8',
 				'immediate' => false,
 				'reply_to' => $id,
+				'corellation_id' => $id,
 			),
 			$task_args
 		);
