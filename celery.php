@@ -73,8 +73,8 @@ define('KWARGSREPR_MAXSIZE', 1024);
  */
 class Celery extends CeleryAbstract 
 {
-   /**
-    * @param string host
+	/**
+	* @param string host
 	* @param string login
 	* @param string password
 	* @param string vhost AMQP vhost, may be left empty or NULL for non-AMQP backends like Redis
@@ -114,7 +114,7 @@ class Celery extends CeleryAbstract
  */
 class CeleryAdvanced extends CeleryAbstract 
 {
-    /**
+	/**
 	 * @param array broker_connection - array for connecting to task queue, see Celery class above for supported keys
 	 * @param array backend_connection - array for connecting to result backend, see Celery class above for supported keys
 	 */
@@ -196,19 +196,19 @@ abstract class CeleryAbstract
 		return $amqp->GetConnectionObject($details);
 	}
 
-  /**
-   * Post a task to Celery
-   *
-   * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
-   * @param array $args Array of arguments (kwargs call when $args is associative)
-   * @param bool $async_result Set to false if you don't need the AsyncResult object returned
-   * @param string $routing_key Set to routing key name if you're using something other than "celery"
-   * @param array $task_metadata Additional settings for Celery - normally not needed
-   *
-   * @return AsyncResult|bool
-   * @throws CeleryException
-   * @throws CeleryPublishException
-   */
+	/**
+	 * Post a task to Celery
+	 *
+	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
+	 * @param array $args Array of arguments (kwargs call when $args is associative)
+	 * @param bool $async_result Set to false if you don't need the AsyncResult object returned
+	 * @param string $routing_key Set to routing key name if you're using something other than "celery"
+	 * @param array $task_metadata Additional settings for Celery - normally not needed
+	 *
+	 * @return AsyncResult|bool
+	 * @throws CeleryException
+	 * @throws CeleryPublishException
+	 */
 	function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_metadata=array())
 	{
 		if(!is_array($args))
@@ -246,37 +246,37 @@ abstract class CeleryAbstract
 		$args_repr = substr($args_repr, 0, ARGSREPR_MAXSIZE);
 		$kwargs_repr = substr($kwargs_repr, 0, ARGSREPR_MAXSIZE);
 
-    /**
+		/**
 		 *	 $task_metadata may contain additional arguments such as 'eta' which are useful in task execution
 		 *	 The usecase of this field is as follows:
 		 *	 $task_metadata = array( 'eta' => "2014-12-02T16:00:00" );
-	   */
+		 */
 		$headers_array = array_merge(
-		  Array(
-        'lang' => "php",
-        'task' => $task,
-        'id' => $id,
-        'eta' => NULL,
-        'expires' => NULL,
-        'group' => NULL,
-        'retries' => 0,
-        'timelimit' => array(NULL, NULL),
-        'root_id' => $id,
-        'parent_id' => NULL,
-        'argsrepr' => $args_repr,
-        'kwargsrepr' => $kwargs_repr,
-        'origin' => $this->origin,
-      ),
-      $task_metadata
-    );
+			Array(
+				'lang' => "php",
+				'task' => $task,
+				'id' => $id,
+				'eta' => NULL,
+				'expires' => NULL,
+				'group' => NULL,
+				'retries' => 0,
+				'timelimit' => array(NULL, NULL),
+				'root_id' => $id,
+				'parent_id' => NULL,
+				'argsrepr' => $args_repr,
+				'kwargsrepr' => $kwargs_repr,
+				'origin' => $this->origin,
+			),
+			$task_metadata
+		);
 
 		$params = Array(
-      'content_type' => 'application/json',
-      'content_encoding' => 'UTF-8',
-      'immediate' => false,
-      'reply_to' => $id,
-      'corellation_id' => $id,
-    );
+			'content_type' => 'application/json',
+			'content_encoding' => 'UTF-8',
+			'immediate' => false,
+			'reply_to' => $id,
+			'corellation_id' => $id,
+		);
 
 		/* Prepare the body */
 		$task_array = Array(
@@ -309,7 +309,7 @@ abstract class CeleryAbstract
 
 		if(!$success)
 		{
-		   throw new CeleryPublishException();
+			 throw new CeleryPublishException();
 		}
 
 		if($async_result) 
