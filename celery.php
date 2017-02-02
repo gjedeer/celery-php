@@ -270,7 +270,7 @@ abstract class CeleryAbstract
 			$task_metadata
 		);
 
-		$params = Array(
+		$properties = Array(
 			'content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
 			'immediate' => false,
@@ -294,7 +294,7 @@ abstract class CeleryAbstract
 
 		if($this->broker_connection_details['persistent_messages'])
 		{
-			$params['delivery_mode'] = 2;
+			$properties['delivery_mode'] = 2;
 		}
 
 		$this->broker_connection_details['routing_key'] = $routing_key;
@@ -303,7 +303,7 @@ abstract class CeleryAbstract
 			$this->broker_connection,
 			$this->broker_connection_details,
 			$task,
-			$params,
+			$properties,
 			$headers_array
 		);
 
