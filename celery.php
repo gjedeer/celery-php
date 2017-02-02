@@ -203,13 +203,13 @@ abstract class CeleryAbstract
    * @param array $args Array of arguments (kwargs call when $args is associative)
    * @param bool $async_result Set to false if you don't need the AsyncResult object returned
    * @param string $routing_key Set to routing key name if you're using something other than "celery"
-   * @param array $task_args Additional settings for Celery - normally not needed
+   * @param array $task_metadata Additional settings for Celery - normally not needed
    *
    * @return AsyncResult|bool
    * @throws CeleryException
    * @throws CeleryPublishException
    */
-	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
+	function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_metadata=array())
 	{
 		if(!is_array($args))
 		{
@@ -246,11 +246,11 @@ abstract class CeleryAbstract
 		$args_repr = substr($args_repr, 0, ARGSREPR_MAXSIZE);
 		$kwargs_repr = substr($kwargs_repr, 0, ARGSREPR_MAXSIZE);
 
-		 /*
-		 *	$task_args may contain additional arguments such as eta which are useful in task execution
-		 *	The usecase of this field is as follows:
-		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
-		  */
+    /**
+		 *	 $task_metadata may contain additional arguments such as 'eta' which are useful in task execution
+		 *	 The usecase of this field is as follows:
+		 *	 $task_metadata = array( 'eta' => "2014-12-02T16:00:00" );
+	   */
 		$headers_array = array_merge(
 		  Array(
         'lang' => "php",
@@ -267,7 +267,7 @@ abstract class CeleryAbstract
         'kwargsrepr' => $kwargs_repr,
         'origin' => $this->origin,
       ),
-      $task_args
+      $task_metadata
     );
 
 		$params = Array(
