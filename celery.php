@@ -245,38 +245,38 @@ abstract class CeleryAbstract
 		}
 		$args_repr = substr($args_repr, 0, ARGSREPR_MAXSIZE);
 		$kwargs_repr = substr($kwargs_repr, 0, ARGSREPR_MAXSIZE);
-                
-		 /* 
-		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+
+		 /*
+		 *	$task_args may contain additional arguments such as eta which are useful in task execution
 		 *	The usecase of this field is as follows:
 		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
-		  */ 
-		$headers_array = Array(
-			'lang' => "php",
-			'task' => $task,
-			'id' => $id,
-			'eta' => NULL,
-			'expires' => NULL,
-			'group' => NULL,
-			'retries' => 0,
-			'timelimit' => array(NULL, NULL),
-			'root_id' => $id,
-			'parent_id' => NULL,
-			'argsrepr' => $args_repr,
-			'kwargsrepr' => $kwargs_repr,
-			'origin' => $this->origin,
-		);
+		  */
+		$headers_array = array_merge(
+		  Array(
+        'lang' => "php",
+        'task' => $task,
+        'id' => $id,
+        'eta' => NULL,
+        'expires' => NULL,
+        'group' => NULL,
+        'retries' => 0,
+        'timelimit' => array(NULL, NULL),
+        'root_id' => $id,
+        'parent_id' => NULL,
+        'argsrepr' => $args_repr,
+        'kwargsrepr' => $kwargs_repr,
+        'origin' => $this->origin,
+      ),
+      $task_args
+    );
 
-		$params = array_merge(
-			Array(
-				'content_type' => 'application/json',
-				'content_encoding' => 'UTF-8',
-				'immediate' => false,
-				'reply_to' => $id,
-				'corellation_id' => $id,
-			),
-			$task_args
-		);
+		$params = Array(
+      'content_type' => 'application/json',
+      'content_encoding' => 'UTF-8',
+      'immediate' => false,
+      'reply_to' => $id,
+      'corellation_id' => $id,
+    );
 
 		/* Prepare the body */
 		$task_array = Array(
