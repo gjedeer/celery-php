@@ -196,15 +196,19 @@ abstract class CeleryAbstract
 		return $amqp->GetConnectionObject($details);
 	}
 
-	/**
-	 * Post a task to Celery
-	 * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
-	 * @param array $args Array of arguments (kwargs call when $args is associative)
-	 * @param bool $async_result Set to false if you don't need the AsyncResult object returned
-	 * @param string $routing_key Set to routing key name if you're using something other than "celery"
-	 * @param array $task_args Additional settings for Celery - normally not needed
-	 * @return AsyncResult
-	 */
+  /**
+   * Post a task to Celery
+   *
+   * @param string $task Name of the task, prefixed with module name (like tasks.add for function add() in task.py)
+   * @param array $args Array of arguments (kwargs call when $args is associative)
+   * @param bool $async_result Set to false if you don't need the AsyncResult object returned
+   * @param string $routing_key Set to routing key name if you're using something other than "celery"
+   * @param array $task_args Additional settings for Celery - normally not needed
+   *
+   * @return AsyncResult|bool
+   * @throws CeleryException
+   * @throws CeleryPublishException
+   */
 	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
 	{
 		if(!is_array($args))
