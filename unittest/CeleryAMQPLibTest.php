@@ -35,6 +35,7 @@
  */
 
 require_once('unittest.php');
+require_once('amqplibconnector.php');
 
 class CeleryAMQPLibTest extends CeleryTest {
 	public function get_c()

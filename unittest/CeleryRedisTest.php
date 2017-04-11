@@ -35,6 +35,7 @@
  */
 
 require_once('unittest.php');
+require_once('redisconnector.php');
 
 class CeleryRedisTest extends CeleryTest {
 	public function get_c()
@@ -43,7 +44,7 @@ class CeleryRedisTest extends CeleryTest {
 			'localhost', /* Server */
 			'', /* Login */
 			'', /* Password */
-			'wutka', /* vhost */
+			0, /* vhost */
 			'celery', /* exchange */
 			'celery', /* binding */
 			6379, /* port */
