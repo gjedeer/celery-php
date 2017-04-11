@@ -17,6 +17,11 @@
             "role": "Developer"
         }
     ],
+    "require-dev": {
+        "php-amqplib/php-amqplib": "*",
+        "phpunit/phpunit": "<6.0.0",
+        "predis/predis": "*"
+    },
     "suggest": {
 	"php-amqplib/php-amqplib": "Adds support for the php-amqplib, AMQP library for PHP, backend",
         "predis/predis": "Adds support for the predis, PHP client library for Redis, backend"
