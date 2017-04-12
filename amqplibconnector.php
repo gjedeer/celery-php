@@ -47,7 +47,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 /**
  * Driver for pure PHP implementation of AMQP protocol
- * @link https://github.com/videlalvaro/php-amqplib
+ * @link https://github.com/php-amqplib/php-amqplib
  * @package celery-php
  */
 class AMQPLibConnector extends AbstractAMQPConnector
