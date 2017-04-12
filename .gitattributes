@@ -1,4 +1,5 @@
 /.gitattributes export-ignore
+/.gitignore export-ignore
 /DEVELOPMENT.md
 /README.md export-ignore
 /docgen export-ignore
