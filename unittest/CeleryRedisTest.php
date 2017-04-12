@@ -37,18 +37,19 @@
 require_once('unittest.php');
 require_once('redisconnector.php');
 
-class CeleryRedisTest extends CeleryTest {
-	public function get_c()
-	{
-		return new Celery(
-			'localhost', /* Server */
-			'', /* Login */
-			'', /* Password */
-			0, /* vhost */
-			'celery', /* exchange */
-			'celery', /* binding */
-			6379, /* port */
-			'redis' /* connector */
-		);
-	}
+class CeleryRedisTest extends CeleryTest
+{
+    public function get_c()
+    {
+        return new Celery(
+            'localhost', /* Server */
+            '', /* Login */
+            '', /* Password */
+            0, /* vhost */
+            'celery', /* exchange */
+            'celery', /* binding */
+            6379, /* port */
+            'redis' /* connector */
+        );
+    }
 }
