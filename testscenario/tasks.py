@@ -7,7 +7,7 @@ def add(x, y):
     print "Got add()"
     return x + y
 
-@task 
+@task
 def add_delayed(x, y):
     print "Got add_delayed()"
     time.sleep(1)

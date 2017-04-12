@@ -6,16 +6,16 @@
  *
  * Copyright (c) 2014, flash286
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
- * 
+ * modification, are permitted provided that the following conditions are met:
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
- * 
+ *    and/or other materials provided with the distribution.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,10 +26,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies, 
- * either expressed or implied, of the FreeBSD Project. 
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the FreeBSD Project.
  *
  * @link https://github.com/flash286/celery-php
  * @link https://github.com/gjedeer/celery-php
@@ -64,7 +64,7 @@ Predis\Autoloader::register();
 	* Return headers used sent to Celery
 	* Override this function to set custom headers
 	*/
-	protected function GetHeaders() 
+	protected function GetHeaders()
 	{
 	   return new stdClass;
 	}
@@ -72,7 +72,7 @@ Predis\Autoloader::register();
 	/**
 	* Prepare the message sent to Celery
 	*/
-	protected function GetMessage($task) 
+	protected function GetMessage($task)
 	{
 	   $result = Array();
 	   $result['body'] = base64_encode($task);
@@ -85,9 +85,9 @@ Predis\Autoloader::register();
 	/**
 	* Return preferred delivery mode
 	*/
-	protected function GetDeliveryMode($params=array()) 
+	protected function GetDeliveryMode($params=array())
 	{
-	   /* 
+	   /*
 	   * http://celery.readthedocs.org/en/latest/userguide/optimizing.html#using-transient-queues
 	   * 1 - will not be written to disk
 	   * 2 - can be written to disk
@@ -112,7 +112,7 @@ Predis\Autoloader::register();
 	* Convert the message string to dictionary
 	* Override this function to use non-JSON serialization
 	*/
-	protected function ToDict($raw_json) 
+	protected function ToDict($raw_json)
 	{
 	   return json_decode($raw_json, TRUE);
 	}
@@ -121,7 +121,7 @@ Predis\Autoloader::register();
 	* Post the message to Redis
 	* This function implements the AbstractAMQPConnector interface
 	*/
-	public function PostToExchange($connection, $details, $task, $params) 
+	public function PostToExchange($connection, $details, $task, $params)
 	{
 	   $connection = $this->Connect($connection);
 	   $body = json_decode($task, true);
@@ -147,13 +147,13 @@ Predis\Autoloader::register();
 	* This function implements the AbstractAMQPConnector interface
 	* @return NULL
 	*/
-	public function Connect($connection) 
+	public function Connect($connection)
 	{
-	   if ($connection->isConnected()) 
+	   if ($connection->isConnected())
 	   {
 		  return $connection;
-	   } 
-	   else 
+	   }
+	   else
 	   {
 		  $connection->connect();
 		  return $connection;
@@ -165,7 +165,7 @@ Predis\Autoloader::register();
 	* @param string $task_id
 	* @return string
 	*/
-	protected function GetResultKey($task_id) 
+	protected function GetResultKey($task_id)
 	{
 	   return sprintf("%s%s", $this->celery_result_prefix, $task_id);
 	}
@@ -176,9 +176,9 @@ Predis\Autoloader::register();
 	* @param string $task_id
 	* @return bool
 	*/
-	protected function FinalizeResult($connection, $task_id) 
+	protected function FinalizeResult($connection, $task_id)
 	{
-	   if ($connection->exists($this->GetResultKey($task_id))) 
+	   if ($connection->exists($this->GetResultKey($task_id)))
 	   {
 		  $connection->del($this->GetResultKey($task_id));
 		  return true;
@@ -196,24 +196,24 @@ Predis\Autoloader::register();
 	* @return array|bool array('body' => JSON-encoded message body, 'complete_result' => library-specific message object)
 	* 			or false if result not ready yet
 	*/
-	public function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue=true) 
+	public function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue=true)
 	{
 	   $result = $connection->get($this->GetResultKey($task_id));
-	   if ($result) 
+	   if ($result)
 	   {
 		  $redis_result = $this->ToDict($result, true);
 		  $result = Array(
 			 'complete_result' => $redis_result,
 			 'body' => json_encode($redis_result)
 		  );
-		  if ($removeMessageFromQueue) 
+		  if ($removeMessageFromQueue)
 		  {
 			 $this->FinalizeResult($connection, $task_id);
 		  }
 
 		  return $result;
 	   }
-	   else 
+	   else
 	   {
 		  return false;
 	   }

@@ -7,16 +7,16 @@
  *
  * Copyright (c) 2012, GDR!
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
- * 
+ * modification, are permitted provided that the following conditions are met:
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
- * 
+ *    and/or other materials provided with the distribution.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,10 +27,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies, 
- * either expressed or implied, of the FreeBSD Project. 
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the FreeBSD Project.
  *
  * @link http://massivescale.net/
  * @link http://gdr.geekhood.net/
@@ -68,7 +68,7 @@ require('amqp.php');
  * Use this class if you don't know what the above means
  * @package celery-php
  */
-class Celery extends CeleryAbstract 
+class Celery extends CeleryAbstract
 {
    /**
     * @param string host
@@ -109,16 +109,16 @@ class Celery extends CeleryAbstract
  * Client for a Celery server - with a constructor supporting separate backend queue
  * @package celery-php
  */
-class CeleryAdvanced extends CeleryAbstract 
+class CeleryAdvanced extends CeleryAbstract
 {
     /**
 	 * @param array broker_connection - array for connecting to task queue, see Celery class above for supported keys
 	 * @param array backend_connection - array for connecting to result backend, see Celery class above for supported keys
 	 */
-	function __construct($broker_connection, $backend_connection=false) 
+	function __construct($broker_connection, $backend_connection=false)
 	{
-		if($backend_connection == false) 
-		{ 
+		if($backend_connection == false)
+		{
 			$backend_connection = $broker_connection;
 		}
 
@@ -222,9 +222,9 @@ abstract class CeleryAbstract
 			$kwargs = $args;
 			$args = array();
 		}
-                
-		 /* 
-		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
+
+		 /*
+		 *	$task_args may contain additional arguments such as eta which are useful in task execution
 		 *	The usecase of this field is as follows:
 		 *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
 		 */
@@ -237,7 +237,7 @@ abstract class CeleryAbstract
 			),
 			$task_args
 		);
-		
+
 		$task = json_encode($task_array);
 		$params = array('content_type' => 'application/json',
 			'content_encoding' => 'UTF-8',
@@ -263,11 +263,11 @@ abstract class CeleryAbstract
 		   throw new CeleryPublishException();
 		}
 
-        if($async_result) 
+        if($async_result)
         {
 			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
-        } 
-        else 
+        }
+        else
         {
 			return true;
 		}
@@ -306,7 +306,7 @@ abstract class CeleryAbstract
  * Asynchronous result of Celery task
  * @package celery-php
  */
-class AsyncResult 
+class AsyncResult
 {
 	private $task_id; // string, queue name
 	private $connection; // AMQPConnection instance
@@ -352,7 +352,7 @@ class AsyncResult
 		}
 
 		$message = $this->amqp->GetMessageBody($this->connection, $this->task_id,$this->connection_details['result_expire'], true);
-		
+
 		if($message !== false)
 		{
 			$this->complete_result = $message['complete_result'];
@@ -365,12 +365,12 @@ class AsyncResult
 	}
 
 	/**
-	 * Helper function to return current microseconds time as float 
+	 * Helper function to return current microseconds time as float
 	 */
 	static private function getmicrotime()
 	{
 			list($usec, $sec) = explode(" ",microtime());
-			return ((float)$usec + (float)$sec); 
+			return ((float)$usec + (float)$sec);
 	}
 
 	/**
@@ -499,7 +499,7 @@ class AsyncResult
 	public function __get($property)
 	{
 		/**
-		 * When the task has been executed, this contains the return value. 
+		 * When the task has been executed, this contains the return value.
 		 * If the task raised an exception, this will be the exception instance.
 		 */
 		if($property == 'result')
@@ -583,4 +583,3 @@ class AsyncResult
 		return $this->get($timeout, $propagate, $interval);
 	}
 }
-

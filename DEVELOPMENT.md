@@ -1,6 +1,6 @@
 ## Goals
 
-API stability is the primary goal. Users should upgrade from the first released version and their code should work without any issues. Unit tests are present to ensure this. 
+API stability is the primary goal. Users should upgrade from the first released version and their code should work without any issues. Unit tests are present to ensure this.
 
 Good documentation is a secondary goal. Every class and method needs to be commented with a [PHPDocumentor](http://www.phpdoc.org/docs/latest/guides/docblocks.html) header.
 
@@ -17,4 +17,3 @@ TLDR: The pace of development is slow. Problems? Do it yourself and submit a pul
 * All pull requests are tested for overall code quality and passing existing unit tests. Because of the amount of work required for this, pull requests are merged rarely, in batches, 1-3 times a year.
 * Issues asking for new features will not be implemented. [Paid support](https://massivescale.net/contact.html) is available if you want something developed, or do it yourself and submit a pull request.
 * Issues reporting non-critical bugs may be fixed if the author has enough free time, which happens rarely. [Paid support](https://massivescale.net/contact.html) is available, the author has plenty of work time. Pull requests implementing these are welcome too.
-

@@ -16,15 +16,15 @@ Last Celery version tested is 3.1.19
 
 [API documentation](https://massivescale.net/celery-php/li_celery-php.html)
 
-## POSTING TASKS                                                                                                                           
+## POSTING TASKS
 
 	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
-	
+
 	// The results are serializable so you can do the following:
 	$_SESSION['celery_result'] = $result;
 	// and use this variable in an AJAX call or whatever
-	
+
 _tip: if using RabbitMQ guest user, set "/" vhost_
 
 ## READING ASYNC RESULTS
@@ -92,7 +92,7 @@ Refer to files in testscenario/ for examples of celeryconfig.py.
 
 	$c = new Celery(
 		'localhost', /* Server */
-		'', /* Login */ 
+		'', /* Login */
 		'test', /* Password */
 		'wutka', /* vhost */
 		'celery', /* exchange */
