@@ -12,15 +12,15 @@ use PhpAmqpLib\Message\AMQPMessage;
  */
 class AMQPLibConnectorSsl extends AMQPLibConnector
 {
-	function GetConnectionObject($details)
-	{
-		return new AMQPSSLConnection(
-			$details['host'],
-			$details['port'],
-			$details['login'],
-			$details['password'],
-			$details['vhost'],
-			$details['ssl_options']
-		);
-	}
+    public function GetConnectionObject($details)
+    {
+        return new AMQPSSLConnection(
+            $details['host'],
+            $details['port'],
+            $details['login'],
+            $details['password'],
+            $details['vhost'],
+            $details['ssl_options']
+        );
+    }
 }

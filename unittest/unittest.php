@@ -53,211 +53,203 @@ require_once('celery.php');
 
 abstract class CeleryTest extends PHPUnit_Framework_TestCase
 {
-	/**
-	 * @expectedException CeleryException
-	 */
-	public function testArgsValidation()
-	{
-		$c = $this->get_c();
+    /**
+     * @expectedException CeleryException
+     */
+    public function testArgsValidation()
+    {
+        $c = $this->get_c();
 
-		$c->PostTask('task.test', 'arg');
-	}
+        $c->PostTask('task.test', 'arg');
+    }
 
-	public function testCorrectOperation()
-	{
-		$c = $this->get_c();
+    public function testCorrectOperation()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.add', array(2,2));
+        $result = $c->PostTask('tasks.add', array(2,2));
 
-		for($i = 0; $i < 10; $i++)
-		{
-			if($result->isReady())
-			{
-				break;
-			}
-			else
-			{
-				sleep(1);
-			}
-		}
-		$this->assertTrue($result->isReady());
+        for ($i = 0; $i < 10; $i++) {
+            if ($result->isReady()) {
+                break;
+            } else {
+                sleep(1);
+            }
+        }
+        $this->assertTrue($result->isReady());
 
-		$this->assertTrue($result->isSuccess());
-		$this->assertEquals(4, $result->getResult());
-	}
+        $this->assertTrue($result->isSuccess());
+        $this->assertEquals(4, $result->getResult());
+    }
 
-	public function testFailingOperation()
-	{
-		$c = $this->get_c();
+    public function testFailingOperation()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.fail', array());
+        $result = $c->PostTask('tasks.fail', array());
 
-		for($i = 0; $i < 20; $i++)
-		{
-			if($result->isReady())
-			{
-				break;
-			}
-			else
-			{
-				sleep(1);
-			}
-		}
-		$this->assertTrue($result->isReady());
+        for ($i = 0; $i < 20; $i++) {
+            if ($result->isReady()) {
+                break;
+            } else {
+                sleep(1);
+            }
+        }
+        $this->assertTrue($result->isReady());
 
-		$this->assertFalse($result->isSuccess());
-		$this->assertGreaterThan(1, strlen($result->getTraceback()));
-	}
+        $this->assertFalse($result->isSuccess());
+        $this->assertGreaterThan(1, strlen($result->getTraceback()));
+    }
 
-	/**
-	 * @expectedException CeleryException
-	 */
-	public function testPrematureGet()
-	{
-		$c = $this->get_c();
+    /**
+     * @expectedException CeleryException
+     */
+    public function testPrematureGet()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.delayed', array());
-		$result->isSuccess();
-	}
+        $result = $c->PostTask('tasks.delayed', array());
+        $result->isSuccess();
+    }
 
-	/**
-	 * @expectedException CeleryException
-	 */
-	public function testPrematureGetTraceback()
-	{
-		$c = $this->get_c();
+    /**
+     * @expectedException CeleryException
+     */
+    public function testPrematureGetTraceback()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.delayed', array());
-		$result->getTraceback();
-	}
+        $result = $c->PostTask('tasks.delayed', array());
+        $result->getTraceback();
+    }
 
-	/**
-	 * @expectedException CeleryException
-	 */
-	public function testPrematureGetResult()
-	{
-		$c = $this->get_c();
+    /**
+     * @expectedException CeleryException
+     */
+    public function testPrematureGetResult()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.delayed', array());
-		$result->getResult();
-	}
+        $result = $c->PostTask('tasks.delayed', array());
+        $result->getResult();
+    }
 
-	public function testFailed()
-	{
-		$c = $this->get_c();
+    public function testFailed()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.fail', array());
-		$result->get();
-		$this->assertTrue($result->failed());
-	}
+        $result = $c->PostTask('tasks.fail', array());
+        $result->get();
+        $this->assertTrue($result->failed());
+    }
 
-	/*
-	 * Test Python API
-	 * Based on http://www.celeryproject.org/tutorials/first-steps-with-celery/
-	 */
-	public function testGet()
-	{
-		$c = $this->get_c();
+    /*
+     * Test Python API
+     * Based on http://www.celeryproject.org/tutorials/first-steps-with-celery/
+     */
+    public function testGet()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.add_delayed', array(4,4));
-		$this->assertFalse($result->ready());
-		$this->assertNull($result->result);
-		$rv = $result->get();
-		$this->assertEquals(8, $rv);
-		$this->assertEquals(8, $result->result);
-		$this->assertTrue($result->successful());
-	}
+        $result = $c->PostTask('tasks.add_delayed', array(4,4));
+        $this->assertFalse($result->ready());
+        $this->assertNull($result->result);
+        $rv = $result->get();
+        $this->assertEquals(8, $rv);
+        $this->assertEquals(8, $result->result);
+        $this->assertTrue($result->successful());
+    }
 
-	public function testKwargs()
-	{
-		$c = $this->get_c();
+    public function testKwargs()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
-		$this->assertFalse($result->ready());
-		$this->assertNull($result->result);
-		$rv = $result->get();
-		$this->assertEquals(8, $rv);
-		$this->assertEquals(8, $result->result);
-		$this->assertTrue($result->successful());
-	}
+        $result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
+        $this->assertFalse($result->ready());
+        $this->assertNull($result->result);
+        $rv = $result->get();
+        $this->assertEquals(8, $rv);
+        $this->assertEquals(8, $result->result);
+        $this->assertTrue($result->successful());
+    }
 
-	/**
-	 * @expectedException CeleryTimeoutException
-	 */
-	public function testzzzzGetTimeLimit()
-	{
-		$c = $this->get_c();
+    /**
+     * @expectedException CeleryTimeoutException
+     */
+    public function testzzzzGetTimeLimit()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.delayed', array());
-		$result->get(1, TRUE, 0.1);
-	}
+        $result = $c->PostTask('tasks.delayed', array());
+        $result->get(1, true, 0.1);
+    }
 
-	public function testStateProperty()
-	{
-		$c = $this->get_c();
+    public function testStateProperty()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.delayed', array());
-		$this->assertEquals($result->state, 'PENDING');
-		$result->get();
-		$this->assertEquals($result->state, 'SUCCESS');
-	}
+        $result = $c->PostTask('tasks.delayed', array());
+        $this->assertEquals($result->state, 'PENDING');
+        $result->get();
+        $this->assertEquals($result->state, 'SUCCESS');
+    }
 
-	/* NO-OP functions should not fail */
-	public function testForget()
-	{
-		$c = $this->get_c();
+    /* NO-OP functions should not fail */
+    public function testForget()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.add', array(2,2));
-		$result->forget();
-		$result->revoke();
-	}
+        $result = $c->PostTask('tasks.add', array(2,2));
+        $result->forget();
+        $result->revoke();
+    }
 
-	public function testWait()
-	{
-		$c = $this->get_c();
+    public function testWait()
+    {
+        $c = $this->get_c();
 
-		$result = $c->PostTask('tasks.add', array(4,4));
-		$rv = $result->wait();
-		$this->assertEquals(8, $rv);
-		$this->assertEquals(8, $result->result);
-		$this->assertTrue($result->successful());
-	}
+        $result = $c->PostTask('tasks.add', array(4,4));
+        $rv = $result->wait();
+        $this->assertEquals(8, $rv);
+        $this->assertEquals(8, $result->result);
+        $this->assertTrue($result->successful());
+    }
 
-	public function testSerialization()
-	{
-		$c = $this->get_c();
+    public function testSerialization()
+    {
+        $c = $this->get_c();
 
-		$result_tmp = $c->PostTask('tasks.add_delayed', array(4,4));
-		$result_serialized = serialize($result_tmp);
-		$result = unserialize($result_serialized);
-		$rv = $result->get();
-		$this->assertEquals(8, $rv);
-		$this->assertEquals(8, $result->result);
-		$this->assertTrue($result->successful());
-	}
+        $result_tmp = $c->PostTask('tasks.add_delayed', array(4,4));
+        $result_serialized = serialize($result_tmp);
+        $result = unserialize($result_serialized);
+        $rv = $result->get();
+        $this->assertEquals(8, $rv);
+        $this->assertEquals(8, $result->result);
+        $this->assertTrue($result->successful());
+    }
 
-	public function testGetAsyncResult()
-	{
-		$c = $this->get_c();
+    public function testGetAsyncResult()
+    {
+        $c = $this->get_c();
 
-		$result_tmp = $c->PostTask('tasks.add', array(427552,1));
-		$id = $result_tmp->getId();
-		sleep(1);
-		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
-		$this->assertTrue(strpos($result['body'], '427553') >= 0);
-		$result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
-		$this->assertTrue(strpos($result['body'], '427553') >= 0);
-		$result = $c->getAsyncResultMessage('tasks.add', $id, null, true);
-		$this->assertTrue(strpos($result['body'], '427553') >= 0);
-	}
+        $result_tmp = $c->PostTask('tasks.add', array(427552,1));
+        $id = $result_tmp->getId();
+        sleep(1);
+        $result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+        $this->assertTrue(strpos($result['body'], '427553') >= 0);
+        $result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
+        $this->assertTrue(strpos($result['body'], '427553') >= 0);
+        $result = $c->getAsyncResultMessage('tasks.add', $id, null, true);
+        $this->assertTrue(strpos($result['body'], '427553') >= 0);
+    }
 
-	public function testReturnedArray()
-	{
-	   $c = $this->get_c();
+    public function testReturnedArray()
+    {
+        $c = $this->get_c();
 
-	   $result = $c->PostTask('tasks.get_fibonacci', array());
-	   $rv = $result->wait();
-	   $this->assertEquals(1, $rv[0]);
-	   $this->assertEquals(34, $rv[8]);
-	}
+        $result = $c->PostTask('tasks.get_fibonacci', array());
+        $rv = $result->wait();
+        $this->assertEquals(1, $rv[0]);
+        $this->assertEquals(34, $rv[8]);
+    }
 }

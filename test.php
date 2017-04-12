@@ -42,18 +42,14 @@ $result = $c->PostTask('tasks.delayed', array());
 #$result = $c->PostTask('tasks.fail', array());
 #echo $result;
 
-while(!$result->isReady())
-{
-#	sleep(1);
-	echo '...';
+while (!$result->isReady()) {
+    #	sleep(1);
+    echo '...';
 }
 
-if($result->isSuccess())
-{
-	echo $result->getResult();
-}
-else
-{
-	echo "ERROR";
-	echo $result->getTraceback();
+if ($result->isSuccess()) {
+    echo $result->getResult();
+} else {
+    echo "ERROR";
+    echo $result->getTraceback();
 }

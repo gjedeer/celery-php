@@ -37,18 +37,19 @@
 require_once('unittest.php');
 require_once('amqplibconnector.php');
 
-class CeleryAMQPLibTest extends CeleryTest {
-	public function get_c()
-	{
-		return new Celery(
-			'localhost', /* Server */
-			'gdr', /* Login */
-			'test', /* Password */
-			'wutka', /* vhost */
-			'celery', /* exchange */
-			'celery', /* binding */
-			5672, /* port */
-			'php-amqplib' /* connector */
-		);
-	}
+class CeleryAMQPLibTest extends CeleryTest
+{
+    public function get_c()
+    {
+        return new Celery(
+            'localhost', /* Server */
+            'gdr', /* Login */
+            'test', /* Password */
+            'wutka', /* vhost */
+            'celery', /* exchange */
+            'celery', /* binding */
+            5672, /* port */
+            'php-amqplib' /* connector */
+        );
+    }
 }
