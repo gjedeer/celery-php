@@ -1,9 +1,9 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
-/DEVELOPMENT.md
+/DEVELOPMENT.md export-ignore
 /README.md export-ignore
-/docgen export-ignore
+/docgen/ export-ignore
 /install_amqp.sh export-ignore
 /test.php export-ignore
-/testscenario export-ignore
-/unittest export-ignore
+/testscenario/ export-ignore
+/unittest/ export-ignore
