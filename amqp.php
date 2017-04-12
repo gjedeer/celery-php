@@ -98,7 +98,7 @@ abstract class AbstractAMQPConnector
 	 * @return object
 	 */
 	abstract function GetConnectionObject($details); // details = array
-	
+
 	/**
 	 * Initialize connection on a given connection object
 	 * @return NULL
