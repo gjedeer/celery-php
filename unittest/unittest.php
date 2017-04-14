@@ -67,7 +67,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.add', array(2,2));
+        $result = $c->PostTask('tasks.add', [2, 2]);
 
         for ($i = 0; $i < 10; $i++) {
             if ($result->isReady()) {
@@ -86,7 +86,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.fail', array());
+        $result = $c->PostTask('tasks.fail', []);
 
         for ($i = 0; $i < 20; $i++) {
             if ($result->isReady()) {
@@ -108,7 +108,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.delayed', array());
+        $result = $c->PostTask('tasks.delayed', []);
         $result->isSuccess();
     }
 
@@ -119,7 +119,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.delayed', array());
+        $result = $c->PostTask('tasks.delayed', []);
         $result->getTraceback();
     }
 
@@ -130,7 +130,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.delayed', array());
+        $result = $c->PostTask('tasks.delayed', []);
         $result->getResult();
     }
 
@@ -138,7 +138,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.fail', array());
+        $result = $c->PostTask('tasks.fail', []);
         $result->get();
         $this->assertTrue($result->failed());
     }
@@ -151,7 +151,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.add_delayed', array(4,4));
+        $result = $c->PostTask('tasks.add_delayed', [4, 4]);
         $this->assertFalse($result->ready());
         $this->assertNull($result->result);
         $rv = $result->get();
@@ -164,7 +164,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.add_delayed', array('x' => 4, 'y' => 4));
+        $result = $c->PostTask('tasks.add_delayed', ['x' => 4, 'y' => 4]);
         $this->assertFalse($result->ready());
         $this->assertNull($result->result);
         $rv = $result->get();
@@ -180,7 +180,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.delayed', array());
+        $result = $c->PostTask('tasks.delayed', []);
         $result->get(1, true, 0.1);
     }
 
@@ -188,7 +188,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.delayed', array());
+        $result = $c->PostTask('tasks.delayed', []);
         $this->assertEquals($result->state, 'PENDING');
         $result->get();
         $this->assertEquals($result->state, 'SUCCESS');
@@ -199,7 +199,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.add', array(2,2));
+        $result = $c->PostTask('tasks.add', [2, 2]);
         $result->forget();
         $result->revoke();
     }
@@ -208,7 +208,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.add', array(4,4));
+        $result = $c->PostTask('tasks.add', [4, 4]);
         $rv = $result->wait();
         $this->assertEquals(8, $rv);
         $this->assertEquals(8, $result->result);
@@ -219,7 +219,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result_tmp = $c->PostTask('tasks.add_delayed', array(4,4));
+        $result_tmp = $c->PostTask('tasks.add_delayed', [4, 4]);
         $result_serialized = serialize($result_tmp);
         $result = unserialize($result_serialized);
         $rv = $result->get();
@@ -232,7 +232,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result_tmp = $c->PostTask('tasks.add', array(427552,1));
+        $result_tmp = $c->PostTask('tasks.add', [427552, 1]);
         $id = $result_tmp->getId();
         sleep(1);
         $result = $c->getAsyncResultMessage('tasks.add', $id, null, false);
@@ -247,7 +247,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     {
         $c = $this->get_c();
 
-        $result = $c->PostTask('tasks.get_fibonacci', array());
+        $result = $c->PostTask('tasks.get_fibonacci', []);
         $rv = $result->wait();
         $this->assertEquals(1, $rv[0]);
         $this->assertEquals(34, $rv[8]);

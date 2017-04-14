@@ -147,7 +147,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
             $ch = $connection->channel();
             $expire_args = null;
             if (!empty($expire)) {
-                $expire_args = array("x-expires"=>array("I",$expire));
+                $expire_args = ["x-expires" => ["I", $expire]];
             }
 
             $ch->queue_declare(
@@ -169,7 +169,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
                 false,                   /* no_ack */
                 false,                   /* exclusive */
                 false,                   /* nowait */
-                array($this, 'Consume')  /* callback */
+                [$this, 'Consume']       /* callback */
             );
             $this->receiving_channel = $ch;
         }
@@ -188,10 +188,10 @@ class AMQPLibConnector extends AbstractAMQPConnector
             $this->receiving_channel->close();
             $connection->close();
 
-            return array(
+            return [
                 'complete_result' => $this->message,
                 'body' => $this->message->body, // JSON message body
-            );
+            ];
         }
 
         return false;
