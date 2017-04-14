@@ -96,9 +96,11 @@ class PECLAMQPConnector extends AbstractAMQPConnector
             }
             $connection->disconnect();
 
-            throw new CeleryException('Response was not encoded using JSON - found ' .
-                $message->getContentType().
-                ' - check your CELERY_RESULT_SERIALIZER setting!');
+            throw new CeleryException(
+                "Response was not encoded using JSON - found " .
+                "{$message->getContentType()} - check your " .
+                "CELERY_RESULT_SERIALIZER setting!"
+            );
         }
 
         if ($removeMessageFromQueue) {
