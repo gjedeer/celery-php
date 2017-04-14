@@ -90,9 +90,9 @@ class Celery extends CeleryAbstract
      * @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
      */
 
-    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector = false, $persistent_messages=false, $result_expire=0, $ssl_options = array())
+    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options=[])
     {
-        $broker_connection = array(
+        $broker_connection = [
             'host' => $host,
             'login' => $login,
             'password' => $password,
@@ -103,7 +103,7 @@ class Celery extends CeleryAbstract
             'connector' => $connector,
             'result_expire' => $result_expire,
             'ssl_options' => $ssl_options
-        );
+        ];
         $backend_connection = $broker_connection;
 
         $items = $this->BuildConnection($broker_connection);
@@ -140,22 +140,22 @@ class CeleryAdvanced extends CeleryAbstract
 abstract class CeleryAbstract
 {
     private $broker_connection = null;
-    private $broker_connection_details = array();
+    private $broker_connection_details = [];
     private $broker_amqp = null;
 
     private $backend_connection = null;
-    private $backend_connection_details = array();
+    private $backend_connection_details = [];
     private $backend_amqp = null;
 
     private $isConnected = false;
 
     private function SetDefaultValues($details)
     {
-        $defaultValues = array("host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => array());
+        $defaultValues = ["host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => []];
 
-        $returnValue = array();
+        $returnValue = [];
 
-        foreach (array('host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options') as $detail) {
+        foreach (['host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options'] as $detail) {
             if (!array_key_exists($detail, $details)) {
                 $returnValue[$detail] = $defaultValues[$detail];
             } else {
@@ -203,7 +203,7 @@ abstract class CeleryAbstract
      * @param array $task_args Additional settings for Celery - normally not needed
      * @return AsyncResult
      */
-    public function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_args=array())
+    public function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_args=[])
     {
         if (!is_array($args)) {
             throw new CeleryException("Args should be an array");
@@ -218,12 +218,12 @@ abstract class CeleryAbstract
 
         /* $args is numeric -> positional args */
         if (array_keys($args) === range(0, count($args) - 1)) {
-            $kwargs = array();
+            $kwargs = [];
         }
         /* $args is associative -> contains kwargs */
         else {
             $kwargs = $args;
-            $args = array();
+            $args = [];
         }
 
         /*
@@ -232,21 +232,21 @@ abstract class CeleryAbstract
          *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
          */
         $task_array = array_merge(
-            array(
+            [
                 'id' => $id,
                 'task' => $task,
                 'args' => $args,
                 'kwargs' => (object)$kwargs,
-            ),
+            ],
             $task_args
         );
 
         $task = json_encode($task_array);
-        $params = array(
+        $params = [
             'content_type' => 'application/json',
             'content_encoding' => 'UTF-8',
             'immediate' => false,
-        );
+        ];
 
         if ($this->broker_connection_details['persistent_messages']) {
             $params['delivery_mode'] = 2;

@@ -106,9 +106,9 @@ class PECLAMQPConnector extends AbstractAMQPConnector
         }
         $connection->disconnect();
 
-        return array(
+        return [
             'complete_result' => $message,
             'body' => $message->getBody(),
-        );
+        ];
     }
 }

@@ -17,6 +17,9 @@
             "role": "Developer"
         }
     ],
+    "require": {
+        "php": ">=5.4.0",
+    },
     "require-dev": {
         "php-amqplib/php-amqplib": "*",
         "phpunit/phpunit": "<6.0.0",
@@ -31,7 +34,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.2-dev"
+            "dev-master": "3.0-dev"
         }
     }
 }

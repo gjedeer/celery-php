@@ -74,7 +74,7 @@ class RedisConnector extends AbstractAMQPConnector
      */
     protected function GetMessage($task)
     {
-        $result = array();
+        $result = [];
         $result['body'] = base64_encode($task);
         $result['headers'] = $this->GetHeaders();
         $result['content-type'] = $this->content_type;
@@ -85,7 +85,7 @@ class RedisConnector extends AbstractAMQPConnector
     /**
      * Return preferred delivery mode
      */
-    protected function GetDeliveryMode($params=array())
+    protected function GetDeliveryMode($params=[])
     {
         /*
          * http://celery.readthedocs.org/en/latest/userguide/optimizing.html#using-transient-queues
@@ -125,17 +125,17 @@ class RedisConnector extends AbstractAMQPConnector
         $connection = $this->Connect($connection);
         $body = json_decode($task, true);
         $message = $this->GetMessage($task);
-        $message['properties'] = array(
+        $message['properties'] = [
             'body_encoding' => 'base64',
             'reply_to' => $body['id'],
-            'delivery_info' => array(
+            'delivery_info' => [
                 'priority' => 0,
                 'routing_key' => $details['binding'],
                 'exchange' => $details['exchange'],
-            ),
+            ],
             'delivery_mode' => $this->GetDeliveryMode($params),
             'delivery_tag'  => $body['id']
-        );
+        ];
         $connection->lPush($details['exchange'], $this->ToStr($message));
 
         return true;
@@ -196,10 +196,10 @@ class RedisConnector extends AbstractAMQPConnector
         $result = $connection->get($this->GetResultKey($task_id));
         if ($result) {
             $redis_result = $this->ToDict($result, true);
-            $result = array(
+            $result = [
                 'complete_result' => $redis_result,
                 'body' => json_encode($redis_result)
-            );
+            ];
             if ($removeMessageFromQueue) {
                 $this->FinalizeResult($connection, $task_id);
             }
@@ -217,13 +217,13 @@ class RedisConnector extends AbstractAMQPConnector
      */
     public function GetConnectionObject($details)
     {
-        $connect = new Predis\Client(array(
+        $connect = new Predis\Client([
             'scheme' => 'tcp',
             'host'   => $details['host'],
             'port'   => $details['port'],
             'database' => $details['vhost'],
             'password' => empty($details['password']) ? null : $details['password']
-        ));
+        ]);
         return $connect;
     }
 }
