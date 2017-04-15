@@ -160,7 +160,12 @@ class AMQPLibConnector extends AbstractAMQPConnector
                 $expire_args
             );
 
-            $ch->queue_bind($task_id, 'celeryresults');
+            try {
+                $ch->queue_bind($task_id, 'celeryresults');
+            } catch (PhpAmqpLib\Exception\AMQPProtocolChannelException $e) {
+                $ch->close();
+                return false;
+            }
 
             $ch->basic_consume(
                 $task_id,                /* queue */
