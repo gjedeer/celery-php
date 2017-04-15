@@ -40,10 +40,7 @@
  * @author GDR! <gdr@go2.pl>
  */
 
-require_once('amqp.php');
-
-use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+namespace Celery;
 
 /**
  * Driver for pure PHP implementation of AMQP protocol
@@ -59,7 +56,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
     public $wait_timeout = 0.1;
 
     /**
-     * PhpAmqpLib\Message\AMQPMessage object received from the queue
+     * \PhpAmqpLib\Message\AMQPMessage object received from the queue
      */
     private $message = null;
 
@@ -70,7 +67,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
     public function GetConnectionObject($details)
     {
-        return new AMQPConnection(
+        return new \PhpAmqpLib\Connection\AMQPConnection(
             $details['host'],
             $details['port'],
             $details['login'],
@@ -109,7 +106,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
             $details['exchange']    /* exchange name - "celery" */
         );
 
-        $msg = new AMQPMessage(
+        $msg = new \PhpAmqpLib\Message\AMQPMessage(
             $task,
             $params
         );
@@ -125,7 +122,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
     /**
      * A callback function for AMQPChannel::basic_consume
-     * @param PhpAmqpLib\Message\AMQPMessage $msg
+     * @param \PhpAmqpLib\Message\AMQPMessage $msg
      */
     public function Consume($msg)
     {
@@ -134,7 +131,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
     /**
      * Return result of task execution for $task_id
-     * @param object $connection AMQPConnection object
+     * @param \PhpAmqpLib\Connection\AMQPConnection $connection
      * @param string $task_id Celery task identifier
      * @param int $expire expire time result queue, milliseconds
      * @param boolean $removeMessageFromQueue whether to remove message from queue
@@ -162,7 +159,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
             try {
                 $ch->queue_bind($task_id, 'celeryresults');
-            } catch (PhpAmqpLib\Exception\AMQPProtocolChannelException $e) {
+            } catch (\PhpAmqpLib\Exception\AMQPProtocolChannelException $e) {
                 $ch->close();
                 return false;
             }
@@ -181,7 +178,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 
         try {
             $this->receiving_channel->wait(null, false, $this->wait_timeout);
-        } catch (PhpAmqpLib\Exception\AMQPTimeoutException $e) {
+        } catch (\PhpAmqpLib\Exception\AMQPTimeoutException $e) {
             return false;
         }
 

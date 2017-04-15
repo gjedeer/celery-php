@@ -34,22 +34,21 @@
  * gdr@go2.pl
  */
 
-require_once('unittest.php');
-require_once('amqplibconnector.php');
+namespace Celery\Tests;
 
-class CeleryAMQPLibTest extends CeleryTest
+class CeleryRedisTest extends CeleryTest
 {
     public function get_c()
     {
-        return new Celery(
+        return new \Celery\Celery(
             'localhost', /* Server */
-            'gdr', /* Login */
-            'test', /* Password */
-            'celeryamqplib', /* vhost */
+            '', /* Login */
+            '', /* Password */
+            0, /* vhost */
             'celery', /* exchange */
             'celery', /* binding */
-            5672, /* port */
-            'php-amqplib' /* connector */
+            6379, /* port */
+            'redis' /* connector */
         );
     }
 }

@@ -18,7 +18,7 @@ Last Celery version tested is 3.1.19
 
 ## POSTING TASKS
 
-	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
+	$c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$result = $c->PostTask('tasks.add', array(2,2));
 
 	// The results are serializable so you can do the following:
@@ -46,14 +46,14 @@ _tip: if using RabbitMQ guest user, set "/" vhost_
 	}
 
 ## GET ASYNC RESULT MESSAGE
-	$c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
+	$c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
 	$message = $c->getAsyncResultMessage('tasks.add', 'taskId');
 
 ## PYTHON-LIKE API
 
 An API compatible to AsyncResult in Python is available too.
 
-        $c = new Celery('localhost', 'myuser', 'mypass', 'myvhost');
+        $c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
         $result = $c->PostTask('tasks.add', array(2,2));
 
         $result->get();
@@ -84,13 +84,13 @@ create a celery object with ssl options:
       'CN_match' => 'CERT_COMMON_NAME'
 	);
 
-	$c = new Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
+	$c = new \Celery\Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
 
 ## CONNECTING TO REDIS
 
 Refer to files in testscenario/ for examples of celeryconfig.py.
 
-	$c = new Celery(
+	$c = new \Celery\Celery(
 		'localhost', /* Server */
 		'', /* Login */
 		'test', /* Password */

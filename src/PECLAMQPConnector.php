@@ -1,6 +1,6 @@
 <?php
 
-require_once('amqp.php');
+namespace Celery;
 
 /**
  * Driver for a fast C/librabbitmq implementation of AMQP from PECL
@@ -16,7 +16,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
      */
     public function GetConnectionObject($details)
     {
-        $connection = new AMQPConnection();
+        $connection = new \AMQPConnection();
         $connection->setHost($details['host']);
         $connection->setLogin($details['login']);
         $connection->setPassword($details['password']);
@@ -33,7 +33,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
     public function Connect($connection)
     {
         $connection->connect();
-        $connection->channel = new AMQPChannel($connection);
+        $connection->channel = new \AMQPChannel($connection);
     }
 
     /**
@@ -46,7 +46,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
     public function PostToExchange($connection, $details, $task, $params)
     {
         $ch = $connection->channel;
-        $xchg = new AMQPExchange($ch);
+        $xchg = new \AMQPExchange($ch);
         $xchg->setName($details['exchange']);
 
         $success = $xchg->publish($task, $details['binding'], 0, $params);
@@ -66,13 +66,13 @@ class PECLAMQPConnector extends AbstractAMQPConnector
     {
         $this->Connect($connection);
         $ch = $connection->channel;
-        $q = new AMQPQueue($ch);
+        $q = new \AMQPQueue($ch);
         $q->setName($task_id);
         $q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
         $q->declareQueue();
         try {
             $q->bind('celeryresults', $task_id);
-        } catch (AMQPQueueException $e) {
+        } catch (\AMQPQueueException $e) {
             if ($removeMessageFromQueue) {
                 $q->delete();
             }

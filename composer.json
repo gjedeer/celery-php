@@ -30,7 +30,14 @@
         "predis/predis": "Adds support for the predis, PHP client library for Redis, backend"
     },
     "autoload": {
-        "classmap": ["celery.php"]
+        "psr-4": {
+            "Celery\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Celery\\Tests\\": "tests/"
+        }
     },
     "extra": {
         "branch-alias": {
