@@ -44,7 +44,7 @@ class CeleryPECLTest extends CeleryTest
             'localhost', /* Server */
             'gdr', /* Login */
             'test', /* Password */
-            'wutka', /* vhost */
+            'celerypecl', /* vhost */
             'celery', /* exchange */
             'celery', /* binding */
             5672, /* port */

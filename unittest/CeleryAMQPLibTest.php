@@ -45,7 +45,7 @@ class CeleryAMQPLibTest extends CeleryTest
             'localhost', /* Server */
             'gdr', /* Login */
             'test', /* Password */
-            'wutka', /* vhost */
+            'celeryamqplib', /* vhost */
             'celery', /* exchange */
             'celery', /* binding */
             5672, /* port */

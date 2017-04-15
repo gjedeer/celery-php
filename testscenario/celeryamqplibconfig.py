@@ -1,4 +1,4 @@
-BROKER_URL = "amqp://gdr:test@localhost:5672/wutka"
+BROKER_URL = "amqp://gdr:test@localhost:5672/celeryamqplib"
 
 CELERY_RESULT_BACKEND = "amqp"
 

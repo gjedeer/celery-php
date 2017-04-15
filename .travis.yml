@@ -1,0 +1,34 @@
+sudo: required
+language: php
+
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
+
+before_install:
+  # Install PECL amqp package
+  - yes '' | pecl install amqp
+  # RabbitMQ
+  - sudo /etc/init.d/rabbitmq-server start
+  - sudo rabbitmqctl add_user gdr test
+  - sudo rabbitmqctl add_vhost celeryamqplib
+  - sudo rabbitmqctl set_permissions -p celeryamqplib gdr '.*' '.*' '.*'
+  - sudo rabbitmqctl add_vhost celerypecl
+  - sudo rabbitmqctl set_permissions -p celerypecl gdr '.*' '.*' '.*'
+  # Redis
+  - sudo start redis-server
+  # Celery
+  - sudo apt-get install -y python-virtualenv
+  - virtualenv venv
+  - venv/bin/pip install celery redis
+  - venv/bin/celery worker --config celeryamqplibconfig --workdir $PWD/testscenario --detach --pidfile celeryamqplib.pid
+  - venv/bin/celery worker --config celerypeclconfig --workdir $PWD/testscenario --detach --pidfile celerypecl.pid
+  - venv/bin/celery worker --config celeryredisconfig --workdir $PWD/testscenario --detach --pidfile celeryredis.pid
+
+install:
+  - composer --no-interaction install --prefer-dist --no-progress
+
+script: $(composer config bin-dir)/phpunit unittest
