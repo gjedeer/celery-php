@@ -1,9 +1,6 @@
 <?php
 
-require_once('amqp.php');
-
-use PhpAmqpLib\Connection\AMQPSSLConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+namespace Celery;
 
 /**
  * Driver for pure PHP implementation of AMQP protocol
@@ -14,7 +11,7 @@ class AMQPLibConnectorSsl extends AMQPLibConnector
 {
     public function GetConnectionObject($details)
     {
-        return new AMQPSSLConnection(
+        return new \PhpAmqpLib\Connection\AMQPSSLConnection(
             $details['host'],
             $details['port'],
             $details['login'],

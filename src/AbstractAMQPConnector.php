@@ -1,18 +1,6 @@
 <?php
 
-/* Include namespaced code only if PhpAmqpLib available */
-if (class_exists('PhpAmqpLib\Connection\AMQPConnection')) {
-    require_once('amqplibconnector.php');
-    require_once('amqplibconnectorssl.php');
-}
-
-/* Include only if predis available */
-if (class_exists('Predis\Autoloader')) {
-    require_once('redisconnector.php');
-}
-
-/* Including the PECL connector never fails */
-require_once('amqppeclconnector.php');
+namespace Celery;
 
 /**
  * Abstraction for AMQP client libraries
@@ -51,7 +39,7 @@ abstract class AbstractAMQPConnector
         } elseif ($name == 'redis') {
             return new RedisConnector();
         } else {
-            throw new Exception('Unknown extension name ' . $name);
+            throw new \Exception('Unknown extension name ' . $name);
         }
     }
 
@@ -63,9 +51,9 @@ abstract class AbstractAMQPConnector
     {
         if ($ssl === true) { //pecl doesn't support ssl
             return 'php-amqplib-ssl';
-        } elseif (class_exists('AMQPConnection') && extension_loaded('amqp')) {
+        } elseif (class_exists('\AMQPConnection') && extension_loaded('amqp')) {
             return 'pecl';
-        } elseif (class_exists('PhpAmqpLib\Connection\AMQPConnection')) {
+        } elseif (class_exists('\PhpAmqpLib\Connection\AMQPConnection')) {
             return 'php-amqplib';
         } else {
             return 'unknown';
@@ -78,7 +66,7 @@ abstract class AbstractAMQPConnector
      * @return object
      */
     abstract public function GetConnectionObject($details); // details = array
-    
+
     /**
      * Initialize connection on a given connection object
      * @return NULL

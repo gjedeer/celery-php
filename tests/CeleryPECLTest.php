@@ -34,13 +34,13 @@
  * gdr@go2.pl
  */
 
-require_once('unittest.php');
+namespace Celery\Tests;
 
 class CeleryPECLTest extends CeleryTest
 {
     public function get_c()
     {
-        return new Celery(
+        return new \Celery\Celery(
             'localhost', /* Server */
             'gdr', /* Login */
             'test', /* Password */

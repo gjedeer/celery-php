@@ -46,15 +46,12 @@ composer global require 'phpunit/phpunit'
  phpunit CeleryAMQPLibTest unittest/CeleryAMQPLibTest.php
  */
 
-/* Include Composer installed packages if available */
-include_once('vendor/autoload.php');
-require_once('celery.php');
+namespace Celery\Tests;
 
-
-abstract class CeleryTest extends PHPUnit_Framework_TestCase
+abstract class CeleryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @expectedException CeleryException
+     * @expectedException \Celery\CeleryException
      */
     public function testArgsValidation()
     {
@@ -102,7 +99,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException CeleryException
+     * @expectedException \Celery\CeleryException
      */
     public function testPrematureGet()
     {
@@ -113,7 +110,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException CeleryException
+     * @expectedException \Celery\CeleryException
      */
     public function testPrematureGetTraceback()
     {
@@ -124,7 +121,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException CeleryException
+     * @expectedException \Celery\CeleryException
      */
     public function testPrematureGetResult()
     {
@@ -174,7 +171,7 @@ abstract class CeleryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException CeleryTimeoutException
+     * @expectedException \Celery\CeleryTimeoutException
      */
     public function testzzzzGetTimeLimit()
     {

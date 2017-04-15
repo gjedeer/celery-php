@@ -39,14 +39,8 @@
  * @author flash286
  * @author GDR! <gdr@go2.pl>
  */
-/**
- * Created by PhpStorm.
- * User: nikolas
- * Date: 01.04.14
- * Time: 15:22
- */
 
-Predis\Autoloader::register();
+namespace Celery;
 
 /**
  * Driver for predis - pure PHP implementation of the Redis protocol
@@ -66,7 +60,7 @@ class RedisConnector extends AbstractAMQPConnector
      */
     protected function GetHeaders()
     {
-        return new stdClass;
+        return new \stdClass;
     }
 
     /**
@@ -217,7 +211,7 @@ class RedisConnector extends AbstractAMQPConnector
      */
     public function GetConnectionObject($details)
     {
-        $connect = new Predis\Client([
+        $connect = new \Predis\Client([
             'scheme' => 'tcp',
             'host'   => $details['host'],
             'port'   => $details['port'],
