@@ -9,6 +9,7 @@ php:
   - 7.1
 
 before_install:
+  - composer --no-interaction validate --strict
   # Install PECL amqp package
   - yes '' | pecl install amqp
   # RabbitMQ
