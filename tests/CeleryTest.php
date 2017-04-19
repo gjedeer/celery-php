@@ -41,7 +41,7 @@ sudo apt-get remove phpunit
 composer global require 'phpunit/phpunit'
 
  * RUN:
- phpunit unittest
+ phpunit
 #or:
  phpunit CeleryAMQPLibTest unittest/CeleryAMQPLibTest.php
  */

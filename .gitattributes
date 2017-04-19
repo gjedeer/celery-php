@@ -4,6 +4,7 @@
 /README.md export-ignore
 /docgen/ export-ignore
 /install_amqp.sh export-ignore
+/phpunit.xml.dist export-ignore
 /test.php export-ignore
+/tests/ export-ignore
 /testscenario/ export-ignore
-/unittest/ export-ignore

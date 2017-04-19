@@ -32,4 +32,4 @@ before_install:
 install:
   - composer --no-interaction install --prefer-dist --no-progress
 
-script: $(composer config bin-dir)/phpunit tests
+script: $(composer config bin-dir)/phpunit
