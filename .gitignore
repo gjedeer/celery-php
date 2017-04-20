@@ -1,3 +1,5 @@
+*.py[co]
 *~
 /composer.lock
 /vendor/
+__pycache__/
