@@ -1,12 +1,14 @@
 ## Goals
 
-API stability is the primary goal. Users should upgrade from the first released version and their code should work without any issues. Unit tests are present to ensure this.
+~~API stability is the primary goal. Users should upgrade from the first released version and their code should work without any issues. Unit tests are present to ensure this.~~
+GDR! who originally created celery-php doesn't maintain it anymore and jdufresne who took over prefers a more agile model. [Check the changelog before upgrading!](https://github.com/gjedeer/celery-php/pull/104)
 
-Good documentation is a secondary goal. Every class and method needs to be commented with a [PHPDocumentor](http://www.phpdoc.org/docs/latest/guides/docblocks.html) header.
+~~Good documentation is a secondary goal. Every class and method needs to be commented with a [PHPDocumentor](http://www.phpdoc.org/docs/latest/guides/docblocks.html) header.~~
+The original PHPDocumentor strings are not recognized by the modern versions of PHPDocumentor and the [issue to fix it](https://github.com/gjedeer/celery-php/issues/82) is not being worked on by anybody.
 
 Testability is a tetrary goal. If you're reporting a bug, please provide a test case.
 
-In other words: your patch will be rejected if it implements the latest and greatest features of Celery but breaks backwards compatibility and/or lacks documentation (and/or deletes existing documentation while also breaking indentation - I've seen this before).
+~~In other words: your patch will be rejected if it implements the latest and greatest features of Celery but breaks backwards compatibility and/or lacks documentation (and/or deletes existing documentation while also breaking indentation - I've seen this before).~~
 
 ## Pace of development
 
