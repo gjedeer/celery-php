@@ -17,7 +17,7 @@ Last predis version tested is 1.0.1.
 
 Last Celery version tested is 3.1.19
 
-[API documentation](https://massivescale.net/celery-php/li_celery-php.html)
+[API documentation](https://massivescale.net/celery-php/li_celery-php.html) is dead, [help wanted](https://github.com/gjedeer/celery-php/issues/82)
 
 ## POSTING TASKS
 
