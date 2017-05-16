@@ -36,7 +36,13 @@
 
 require_once 'vendor/autoload.php';
 
-$c = new \Celery\Celery('localhost', 'gdr', 'test', 'wutka', 'celery', 'celery', 5672, 'php-amqplib');
+$c = new \Celery\Celery([
+    'host' => 'localhost',
+    'login' => 'gdr',
+    'password' => 'test',
+    'vhost' => 'wutka',
+    'connector' => 'php-amqplib',
+]);
 #$result = $c->PostTask('tasks.add', array(2,2));
 $result = $c->PostTask('tasks.delayed', []);
 #$result = $c->PostTask('tasks.fail', array());

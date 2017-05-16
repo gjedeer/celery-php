@@ -21,7 +21,12 @@ Last Celery version tested is 3.1.19 (but check out the [celery4 branch](https:/
 
 ## POSTING TASKS
 
-    $c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
+    $c = new \Celery\Celery([
+        'host' => 'localhost',
+        'login' => 'myuser',
+        'password' => 'mypass',
+        'vhost' => 'myvhost',
+    ]);
     $result = $c->PostTask('tasks.add', array(2,2));
 
     // The results are serializable so you can do the following:
@@ -46,14 +51,24 @@ _tip: if using RabbitMQ guest user, set "/" vhost_
 
 ## GET ASYNC RESULT MESSAGE
 
-    $c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
+    $c = new \Celery\Celery([
+        'host' => 'localhost',
+        'login' => 'myuser',
+        'password' => 'mypass',
+        'vhost' => 'myvhost',
+    ]);
     $message = $c->getAsyncResultMessage('tasks.add', 'taskId');
 
 ## PYTHON-LIKE API
 
 An API compatible to AsyncResult in Python is available too.
 
-    $c = new \Celery\Celery('localhost', 'myuser', 'mypass', 'myvhost');
+    $c = new \Celery\Celery([
+        'host' => 'localhost',
+        'login' => 'myuser',
+        'password' => 'mypass',
+        'vhost' => 'myvhost',
+    ]);
     $result = $c->PostTask('tasks.add', array(2,2));
 
     $result->get();
@@ -90,19 +105,22 @@ options:
         'CN_match' => 'CERT_COMMON_NAME'
     ];
 
-    $c = new \Celery\Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, $ssl_options);
+    $c = new \Celery\Celery([
+        'host' => $host,
+        'login' => $user,
+        'password' => $password,
+        'vhost' => $vhost,
+        'ssl_options' => $ssl_options,
+    ]);
 
 ## CONNECTING TO REDIS
 
 Refer to files in `testscenario/` for examples of celeryconfig.py.
 
-    $c = new \Celery\Celery(
-        'localhost', /* Server */
-        '', /* Login */
-        'test', /* Password */
-        'wutka', /* vhost */
-        'celery', /* exchange */
-        'celery', /* binding */
-        6379, /* port */
-        'redis' /* connector */
-    );
+    $c = new \Celery\Celery([
+        'host' => 'localhost',
+        'password' => 'test',
+        'vhost' => 'wutka',
+        'port' => 6379,
+        'connector' => 'redis',
+    ]);

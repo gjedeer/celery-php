@@ -8,3 +8,6 @@
   videlalvaro/php-amqplib is abandoned.
 - Fix crash with the ampqlib backend when Celery has not yet created the
   results exchange.
+- The `Celery` class can now use a separate broker and backend connection. To
+  allow this, constructor accepts two connection arrays. If only one is passed,
+  the backend connection uses the same arguments as the broker.
