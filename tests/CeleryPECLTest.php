@@ -40,15 +40,12 @@ class CeleryPECLTest extends CeleryTest
 {
     public function get_c()
     {
-        return new \Celery\Celery(
-            'localhost', /* Server */
-            'gdr', /* Login */
-            'test', /* Password */
-            'celerypecl', /* vhost */
-            'celery', /* exchange */
-            'celery', /* binding */
-            5672, /* port */
-            'pecl' /* connector */
-        );
+        return new \Celery\Celery([
+            'host' => 'localhost',
+            'login' => 'gdr',
+            'password' => 'test',
+            'vhost' => 'celerypecl',
+            'connector' => 'pecl',
+        ]);
     }
 }

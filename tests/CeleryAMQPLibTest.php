@@ -40,15 +40,12 @@ class CeleryAMQPLibTest extends CeleryTest
 {
     public function get_c()
     {
-        return new \Celery\Celery(
-            'localhost', /* Server */
-            'gdr', /* Login */
-            'test', /* Password */
-            'celeryamqplib', /* vhost */
-            'celery', /* exchange */
-            'celery', /* binding */
-            5672, /* port */
-            'php-amqplib' /* connector */
-        );
+        return new \Celery\Celery([
+            'host' => 'localhost',
+            'login' => 'gdr',
+            'password' => 'test',
+            'vhost' => 'celeryamqplib',
+            'connetor' => 'php-amqplib',
+        ]);
     }
 }

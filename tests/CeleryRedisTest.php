@@ -40,15 +40,11 @@ class CeleryRedisTest extends CeleryTest
 {
     public function get_c()
     {
-        return new \Celery\Celery(
-            'localhost', /* Server */
-            '', /* Login */
-            '', /* Password */
-            0, /* vhost */
-            'celery', /* exchange */
-            'celery', /* binding */
-            6379, /* port */
-            'redis' /* connector */
-        );
+        return new \Celery\Celery([
+            'host' => 'localhost',
+            'vhost' => 0,
+            'port' => 6379,
+            'connector' => 'redis',
+        ]);
     }
 }
