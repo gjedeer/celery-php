@@ -2,6 +2,8 @@
 
 namespace Celery;
 
+use PhpAmqpLib\Exception\AMQPProtocolConnectionException;
+
 /**
  * Client for a Celery server - abstract base class implementing actual logic
  * @package celery-php
@@ -57,10 +59,24 @@ abstract class CeleryAbstract
         }
     }
 
+    /**
+     * @throws CeleryConnectionException on connection failure.
+     */
     public static function InitializeAMQPConnection($details)
     {
         $amqp = AbstractAMQPConnector::GetConcrete($details['connector']);
-        return $amqp->GetConnectionObject($details);
+        try {
+            return $amqp->GetConnectionObject($details);
+        }
+        catch (AMQPProtocolConnectionException $e) {
+            throw new CeleryConnectionException("Failed to establish a AMQP connection. Check credentials.");
+        }
+        catch (\ErrorException $e) {
+            throw new CeleryConnectionException("Failed to establish a AMQP connection. Check hostname.");
+        }
+        catch (Exception $e) {
+            throw new CeleryConnectionException("Failed to establish a AMQP connection. Unspecified failure.");
+        }
     }
 
     /**
