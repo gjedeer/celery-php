@@ -71,6 +71,9 @@ abstract class CeleryAbstract
         catch (AMQPProtocolConnectionException $e) {
             throw new CeleryConnectionException("Failed to establish a AMQP connection. Check credentials.");
         }
+        catch (\ErrorException $e) {
+            throw new CeleryConnectionException("Failed to establish a AMQP connection. Check hostname.");
+        }
         catch (Exception $e) {
             throw new CeleryConnectionException("Failed to establish a AMQP connection. Unspecified failure.");
         }
