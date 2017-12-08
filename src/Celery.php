@@ -94,7 +94,7 @@ class Celery extends CeleryAbstract
             'ssl_options' => $ssl_options
         ];
 
-        $this->config = $config_object ?: new CeleryConfig;
+        $this->config = $config_object ?: new Config;
 
         $backend_connection = $broker_connection;
 
