@@ -14,6 +14,7 @@ class AsyncResult
     private $complete_result; // Backend-dependent message instance (AMQPEnvelope or PhpAmqpLib\Message\AMQPMessage)
     private $body; // decoded array with message body (whatever Celery task returned)
     private $amqp = null; // AbstractAMQPConnector implementation
+    private $remove_from_queue = true; // Remove message from queue after getting its body?
 
     /**
      * Don't instantiate AsyncResult yourself, used internally only
@@ -22,7 +23,7 @@ class AsyncResult
      * @param string task_name
      * @param array task_args
      */
-    public function __construct($id, $connection_details, $task_name=null, $task_args=null)
+    public function __construct($id, $connection_details, $task_name=null, $task_args=null, $remove_from_queue=true)
     {
         $this->task_id = $id;
         $this->connection = Celery::InitializeAMQPConnection($connection_details);
@@ -30,6 +31,7 @@ class AsyncResult
         $this->task_name = $task_name;
         $this->task_args = $task_args;
         $this->amqp = AbstractAMQPConnector::GetConcrete($connection_details['connector']);
+        $this->remove_from_queue = $remove_from_queue;
     }
 
     public function __wakeup()
@@ -49,7 +51,12 @@ class AsyncResult
             return $this->complete_result;
         }
 
-        $message = $this->amqp->GetMessageBody($this->connection, $this->task_id, $this->connection_details['result_expire'], true);
+        $message = $this->amqp->GetMessageBody(
+            $this->connection,
+            $this->task_id,
+            $this->connection_details['result_expire'],
+            $this->remove_from_queue
+        );
 
         if ($message !== false) {
             $this->complete_result = $message['complete_result'];

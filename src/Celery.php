@@ -64,9 +64,22 @@ class Celery extends CeleryAbstract
      * @param bool persistent_messages False = transient queue, True = persistent queue. Check "Using Transient Queues" in Celery docs (set to false when in doubt)
      * @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
      * @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
+     * @param CeleryObject Celery configuration object containing additional optional config.
      */
 
-    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options=[])
+    public function __construct(
+        $host,
+		$login,
+		$password,
+		$vhost,
+		$exchange = 'celery',
+		$binding = 'celery',
+		$port = 5672,
+		$connector = false,
+		$persistent_messages = false,
+		$result_expire = 0,
+		$ssl_options = array(),
+		Config $config_object = null)
     {
         $broker_connection = [
             'host' => $host,
@@ -80,6 +93,9 @@ class Celery extends CeleryAbstract
             'result_expire' => $result_expire,
             'ssl_options' => $ssl_options
         ];
+
+        $this->config = $config_object ?: new CeleryConfig;
+
         $backend_connection = $broker_connection;
 
         $items = $this->BuildConnection($broker_connection);

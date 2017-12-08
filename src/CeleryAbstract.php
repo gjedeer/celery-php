@@ -18,7 +18,11 @@ abstract class CeleryAbstract
     private $backend_connection_details = [];
     private $backend_amqp = null;
 
+    /** @var bool Is broker connected? **/
     private $isConnected = false;
+
+    /** @var Config **/
+    protected $config = null;
 
     private function SetDefaultValues($details)
     {
@@ -151,7 +155,13 @@ abstract class CeleryAbstract
         }
 
         if ($async_result) {
-            return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
+            return new AsyncResult(
+                $id,
+                $this->backend_connection_details,
+                $task_array['task'],
+                $args,
+                !$this->config->keep_messages_in_queue
+            );
         } else {
             return true;
         }
