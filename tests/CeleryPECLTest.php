@@ -38,7 +38,7 @@ namespace Celery\Tests;
 
 class CeleryPECLTest extends CeleryTest
 {
-    public function get_c()
+    public function get_c(\Celery\Config $config = null)
     {
         return new \Celery\Celery(
             'localhost', /* Server */
@@ -48,7 +48,11 @@ class CeleryPECLTest extends CeleryTest
             'celery', /* exchange */
             'celery', /* binding */
             5672, /* port */
-            'pecl' /* connector */
+            'pecl' /* connector */,
+            false, /* persistent messages */
+            0, /* result expire */
+            [], /* ssl options */
+            $config /* config object */
         );
     }
 }

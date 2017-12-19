@@ -38,7 +38,7 @@ namespace Celery\Tests;
 
 class CeleryRedisTest extends CeleryTest
 {
-    public function get_c()
+    public function get_c(\Celery\Config $config = null)
     {
         return new \Celery\Celery(
             'localhost', /* Server */
@@ -48,7 +48,11 @@ class CeleryRedisTest extends CeleryTest
             'celery', /* exchange */
             'celery', /* binding */
             6379, /* port */
-            'redis' /* connector */
+            'redis' /* connector */,
+            false, /* persistent messages */
+            0, /* result expire */
+            [], /* ssl options */
+            $config /* config object */
         );
     }
 }

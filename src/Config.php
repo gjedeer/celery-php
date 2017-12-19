@@ -19,6 +19,8 @@ class Config
 	 * can be modified.
 	 */
 	protected $config = [
+		// Whether to delete messages from queue
+		// after they were _successfully_ returned.
 		'keep_messages_in_queue' => false,
 	];
 

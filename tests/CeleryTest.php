@@ -50,6 +50,19 @@ namespace Celery\Tests;
 
 abstract class CeleryTest extends \PHPUnit_Framework_TestCase
 {
+    private static function waitForReady(
+        \Celery\AsyncResult $result,
+        $max = 10
+    ) {
+        for ($i = 0; $i < $max; $i++) {
+            if ($result->isReady()) {
+                return;
+            } else {
+                sleep(1);
+            }
+        }
+    }
+
     /**
      * @expectedException \Celery\CeleryException
      */
@@ -66,13 +79,7 @@ abstract class CeleryTest extends \PHPUnit_Framework_TestCase
 
         $result = $c->PostTask('tasks.add', [2, 2]);
 
-        for ($i = 0; $i < 10; $i++) {
-            if ($result->isReady()) {
-                break;
-            } else {
-                sleep(1);
-            }
-        }
+        self::waitForReady($result);
         $this->assertTrue($result->isReady());
 
         $this->assertTrue($result->isSuccess());
@@ -85,13 +92,7 @@ abstract class CeleryTest extends \PHPUnit_Framework_TestCase
 
         $result = $c->PostTask('tasks.fail', []);
 
-        for ($i = 0; $i < 20; $i++) {
-            if ($result->isReady()) {
-                break;
-            } else {
-                sleep(1);
-            }
-        }
+        self::waitForReady($result, 20);
         $this->assertTrue($result->isReady());
 
         $this->assertFalse($result->isSuccess());
@@ -249,4 +250,99 @@ abstract class CeleryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rv[0]);
         $this->assertEquals(34, $rv[8]);
     }
+
+    public function testDoNotKeepMessagesInQueue()
+    {
+        // What's tested is explained here:
+        // https://github.com/gjedeer/celery-php/pull/108
+
+        $config = new \Celery\Config([
+            'keep_messages_in_queue' => false, // Default config.
+        ]);
+        $c = $this->get_c($config);
+
+        // Test that AsyncResult deletes messages after fetching them.
+        $result = $c->PostTask('tasks.long_running_with_progress', []);
+        $serialized = serialize($result);
+
+        // Sleep some time so we know for sure we'll get over "5% progress".
+        sleep(5);
+
+        // 1st
+        self::waitForReady($result);
+        $r1 = $result->getResult();
+        // First result is "20% progress"
+        $this->assertEquals(20, $r1->progress);
+
+        // Sleep just the "bad" amount of time. We get right between the
+        // moments when the first message ("20% progress") is already deleted,
+        // but the second getResult() call will still have a timeout, because
+        // the second message ("40%") is still yet to be reported.
+        // See the long delay at tasks.py.
+        sleep(4);
+
+        // The original result message is DELETED by now, so expect a
+        // Celery\CeleryException down below.
+        $this->expectException(\Celery\CeleryException::class);
+
+        // 2nd - this will timeout.
+        $r = unserialize($serialized);
+        self::waitForReady($r, 2); // Force timeout after 2 secs to save time.
+        $r2 = $r->getResult();
+
+    }
+
+    public function testKeepMessagesInQueue()
+    {
+        // What's tested is explained here:
+        // https://github.com/gjedeer/celery-php/pull/108
+
+        $config1 = new \Celery\Config([
+            'keep_messages_in_queue' => true, // Do not delete messages.
+        ]);
+        $c = $this->get_c($config1);
+
+        // Test that AsyncResult deletes messages after fetching them.
+        $result = $c->PostTask('tasks.long_running_with_progress', []);
+        $serialized = serialize($result);
+
+        // Sleep some time so we know for sure we'll get over "5% progress".
+        sleep(5);
+
+        // 1st
+        self::waitForReady($result);
+        $r1 = $result->getResult();
+        // First result is "20% progress"
+        $this->assertEquals(20, $r1->progress);
+
+        // Sleep just the "bad" amount of time. (See the test above.)
+        sleep(4);
+
+        // 2nd
+        $r = unserialize($serialized);
+        self::waitForReady($r, 2);
+        $r2 = $r->getResult();
+        // Second result refers to the same "20% progress"
+        $this->assertEquals(20, $r2->progress);
+
+        // 3nd
+        $r = unserialize($serialized);
+        self::waitForReady($r, 2);
+        $r3 = $r->getResult();
+        // Third result refers to the same  "20% progress"
+        $this->assertEquals(20, $r3->progress);
+
+        // 4th
+        $r = unserialize($serialized);
+        self::waitForReady($r, 2);
+        $r4 = $r->getResult();
+        // Fourth result refers to the same  "20% progress"
+        $this->assertEquals(20, $r4->progress);
+
+        // Because the result message is NOT deleted from the queue after
+        // fetching it, all getResult methods of the same AsyncResult being
+        // unserialized return (refer to) the same specific result message.
+
+    }
+
 }
