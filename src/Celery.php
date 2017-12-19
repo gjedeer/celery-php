@@ -69,17 +69,17 @@ class Celery extends CeleryAbstract
 
     public function __construct(
         $host,
-		$login,
-		$password,
-		$vhost,
-		$exchange = 'celery',
-		$binding = 'celery',
-		$port = 5672,
-		$connector = false,
-		$persistent_messages = false,
-		$result_expire = 0,
-		$ssl_options = array(),
-		Config $config_object = null)
+        $login,
+        $password,
+        $vhost,
+        $exchange = 'celery',
+        $binding = 'celery',
+        $port = 5672,
+        $connector = false,
+        $persistent_messages = false,
+        $result_expire = 0,
+        $ssl_options = array(),
+        Config $config_object = null)
     {
         $broker_connection = [
             'host' => $host,
