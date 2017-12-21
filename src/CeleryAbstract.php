@@ -39,7 +39,7 @@ abstract class CeleryAbstract
     public function BuildConnection($connection_details, $is_backend = false)
     {
         $connection_details = $this->SetDefaultValues($connection_details);
-        $ssl = !empty($connection['ssl_options']);
+        $ssl = !empty($connection_details['ssl_options']);
 
         if ($connection_details['connector'] === false) {
             $connection_details['connector'] = AbstractAMQPConnector::GetBestInstalledExtensionName($ssl);
