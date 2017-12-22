@@ -77,7 +77,7 @@ class Celery extends CeleryAbstract
             'exchange' => $exchange,
             'binding' => $binding,
             'port' => $port,
-            'connector' => $connector,
+            'connector' => $connector !== false ? $connector : null,
             'persistent_messages' => $persistent_messages,
             'result_expire' => $result_expire,
             'ssl_options' => $ssl_options
