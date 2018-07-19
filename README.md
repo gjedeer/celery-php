@@ -15,7 +15,7 @@ Last PHP-amqplib version tested is 2.5.1.
 
 Last predis version tested is 1.0.1.
 
-Last Celery version tested is 3.1.19 (but check out the [celery4 branch](https://github.com/gjedeer/celery-php/tree/celery4))
+Tested on Celery 4.0+.
 
 [API documentation](https://massivescale.net/celery-php/li_celery-php.html) is dead, [help wanted](https://github.com/gjedeer/celery-php/issues/82)
 
