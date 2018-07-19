@@ -21,11 +21,13 @@
         "php": ">=5.4.0"
     },
     "require-dev": {
+        "ext-amqp": "*",
         "php-amqplib/php-amqplib": "*",
         "phpunit/phpunit": "<6.0.0",
         "predis/predis": "*"
     },
     "suggest": {
+        "ext-amqp": "Adds support for the AMQP extension for PHP backend",
         "php-amqplib/php-amqplib": "Adds support for the php-amqplib, AMQP library for PHP, backend",
         "predis/predis": "Adds support for the predis, PHP client library for Redis, backend"
     },
