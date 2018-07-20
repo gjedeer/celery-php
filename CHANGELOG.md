@@ -10,3 +10,4 @@
   results exchange.
 - The `Celery` constructor no longer accepts the argument
   `persistent_messages`. It was previously unused.
+- celery-php now uses Celery task protocol version 2 and requires Celery 4.0+.

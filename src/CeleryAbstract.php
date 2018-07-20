@@ -85,10 +85,10 @@ abstract class CeleryAbstract
      * @param array $args Array of arguments (kwargs call when $args is associative)
      * @param bool $async_result Set to false if you don't need the AsyncResult object returned
      * @param string $routing_key Set to routing key name if you're using something other than "celery"
-     * @param array $task_args Additional settings for Celery - normally not needed
+     * @param array $options Additional settings for Celery - normally not needed
      * @return AsyncResult
      */
-    public function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_args=[])
+    public function PostTask($task, $args, $async_result=true, $routing_key="celery", $options=[])
     {
         if (!is_array($args)) {
             throw new CeleryException("Args should be an array");
@@ -112,29 +112,34 @@ abstract class CeleryAbstract
         }
 
         /*
-         *	$task_args may contain additional arguments such as eta which are useful in task execution
-         *	The usecase of this field is as follows:
-         *	$task_args = array( 'eta' => "2014-12-02T16:00:00" );
+         * $options may contain additional arguments such as eta which are
+         * useful in task execution. The usecase of this field is as follows:
+         * $options = ['eta' => "2014-12-02T16:00:00"];
          */
-        $task_array = array_merge(
-            [
-                'id' => $id,
-                'task' => $task,
-                'args' => $args,
-                'kwargs' => (object)$kwargs,
-            ],
-            $task_args
-        );
 
-        $task = json_encode($task_array);
-        $params = [
+        // http://docs.celeryproject.org/en/latest/internals/protocol.html
+        $properties = [
+            'correlation_id' => $id,
             'content_type' => 'application/json',
-            'content_encoding' => 'UTF-8',
-            'immediate' => false,
+            'content_encoding' => 'utf-8',
         ];
 
+        $headers = [
+            'lang' => 'py',
+            'task' => $task,
+            'id' => $id,
+        ];
+        $headers = array_merge($headers, $options);
+
+        $body = [
+            $args,
+            (object)$kwargs,
+            null,
+        ];
+        $body = json_encode($body);
+
         if ($this->broker_connection_details['persistent_messages']) {
-            $params['delivery_mode'] = 2;
+            $properties['delivery_mode'] = 2;
         }
 
         $this->broker_connection_details['routing_key'] = $routing_key;
@@ -142,8 +147,9 @@ abstract class CeleryAbstract
         $success = $this->broker_amqp->PostToExchange(
             $this->broker_connection,
             $this->broker_connection_details,
-            $task,
-            $params
+            $body,
+            $properties,
+            $headers
         );
 
         if (!$success) {
@@ -151,7 +157,7 @@ abstract class CeleryAbstract
         }
 
         if ($async_result) {
-            return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
+            return new AsyncResult($id, $this->backend_connection_details, $task, $args);
         } else {
             return true;
         }

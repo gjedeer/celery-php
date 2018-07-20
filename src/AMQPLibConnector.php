@@ -81,7 +81,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
     {
     }
 
-    public function PostToExchange($connection, $details, $task, $params)
+    public function PostToExchange($connection, $details, $body, $properties, $headers)
     {
         $ch = $connection->channel();
 
@@ -106,10 +106,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
             $details['exchange']    /* exchange name - "celery" */
         );
 
-        $msg = new \PhpAmqpLib\Message\AMQPMessage(
-            $task,
-            $params
-        );
+        $properties['application_headers'] = new \PhpAmqpLib\Wire\AMQPTable($headers);
+        $msg = new \PhpAmqpLib\Message\AMQPMessage($body, $properties);
 
         $ch->basic_publish($msg, $details['exchange'], $details['routing_key']);
 
