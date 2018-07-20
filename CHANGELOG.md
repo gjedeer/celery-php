@@ -8,5 +8,3 @@
   videlalvaro/php-amqplib is abandoned.
 - Fix crash with the ampqlib backend when Celery has not yet created the
   results exchange.
-- The `Celery` constructor no longer accepts the argument
-  `persistent_messages`. It was previously unused.
