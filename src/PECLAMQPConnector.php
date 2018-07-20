@@ -40,18 +40,20 @@ class PECLAMQPConnector extends AbstractAMQPConnector
      * Post a task to exchange specified in $details
      * @param AMQPConnection $connection Connection object
      * @param array $details Array of connection details
-     * @param string $task JSON-encoded task
-     * @param array $params AMQP message parameters
+     * @param string $body JSON-encoded task body
+     * @param array $properties AMQP message properties
+     * @param array $headers Celery task headers
+     * @return bool true if posted successfuly
      */
-    public function PostToExchange($connection, $details, $task, $params)
+    public function PostToExchange($connection, $details, $body, $properties, $headers)
     {
         $ch = $connection->channel;
         $xchg = new \AMQPExchange($ch);
         $xchg->setName($details['exchange']);
 
-        $success = $xchg->publish($task, $details['binding'], 0, $params);
+        $properties['headers'] = $headers;
 
-        return $success;
+        return $xchg->publish($body, $details['binding'], 0, $properties);
     }
 
     /**

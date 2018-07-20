@@ -55,25 +55,26 @@ class RedisConnector extends AbstractAMQPConnector
     public $celery_result_prefix = 'celery-task-meta-';
 
     /**
-     * Return headers used sent to Celery
-     * Override this function to set custom headers
-     */
-    protected function GetHeaders()
-    {
-        return new \stdClass;
-    }
-
-    /**
      * Prepare the message sent to Celery
      */
-    protected function GetMessage($task)
+    protected function GetMessage($details, $body, $properties, $headers)
     {
-        $result = [];
-        $result['body'] = base64_encode($task);
-        $result['headers'] = $this->GetHeaders();
-        $result['content-type'] = $this->content_type;
-        $result['content-encoding'] = 'binary';
-        return $result;
+        return [
+            'content-type' => $this->content_type,
+            'content-encoding' => 'binary',
+            'properties' => [
+                'reply_to' => $headers['id'],
+                'delivery_info' => [
+                    'priority' => 0,
+                    'routing_key' => $details['binding'],
+                    'exchange' => $details['exchange'],
+                ],
+                'delivery_mode' => $this->GetDeliveryMode($properties),
+                'delivery_tag' => $headers['id'],
+            ],
+            'headers' => $headers,
+            'body' => $body,
+        ];
     }
 
     /**
@@ -114,24 +115,11 @@ class RedisConnector extends AbstractAMQPConnector
      * Post the message to Redis
      * This function implements the AbstractAMQPConnector interface
      */
-    public function PostToExchange($connection, $details, $task, $params)
+    public function PostToExchange($connection, $details, $body, $properties, $headers)
     {
         $connection = $this->Connect($connection);
-        $body = json_decode($task, true);
-        $message = $this->GetMessage($task);
-        $message['properties'] = [
-            'body_encoding' => 'base64',
-            'reply_to' => $body['id'],
-            'delivery_info' => [
-                'priority' => 0,
-                'routing_key' => $details['binding'],
-                'exchange' => $details['exchange'],
-            ],
-            'delivery_mode' => $this->GetDeliveryMode($params),
-            'delivery_tag'  => $body['id']
-        ];
+        $message = $this->GetMessage($details, $body, $properties, $headers);
         $connection->lPush($details['exchange'], $this->ToStr($message));
-
         return true;
     }
 
