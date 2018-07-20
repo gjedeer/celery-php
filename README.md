@@ -90,7 +90,7 @@ options:
         'CN_match' => 'CERT_COMMON_NAME'
     ];
 
-    $c = new \Celery\Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, false, 0, $ssl_options);
+    $c = new \Celery\Celery($host, $user, $password, $vhost, 'celery', 'celery', 5671, false, 0, $ssl_options);
 
 ## CONNECTING TO REDIS
 

@@ -61,12 +61,10 @@ class Celery extends CeleryAbstract
      * @param string binding AMQP binding a.k.a. routing key. See CELERY_DEFAULT_ROUTING_KEY. (set to 'celery' when in doubt)
      * @param int port
      * @param string connector Which connector library to use. One of: 'pecl', 'php-amqplib', 'php-amqplib-ssl', 'redis'
-     * @param bool persistent_messages False = transient queue, True = persistent queue. Check "Using Transient Queues" in Celery docs (set to false when in doubt)
      * @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
      * @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
      */
-
-    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $persistent_messages=false, $result_expire=0, $ssl_options=[])
+    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $result_expire=0, $ssl_options=[])
     {
         $broker_connection = [
             'host' => $host,
