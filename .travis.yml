@@ -2,29 +2,29 @@ sudo: required
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
+  - '5.4'
+  - '5.5'
+  - '5.6'
+
+services:
+  - rabbitmq
+  - redis-server
 
 before_install:
   - composer --no-interaction validate --strict
   # Install PECL amqp package
-  - yes '' | pecl install amqp
+  - sudo apt-get install librabbitmq-dev
+  - yes '' | pecl install amqp-1.4.0
   # RabbitMQ
-  - sudo /etc/init.d/rabbitmq-server start
   - sudo rabbitmqctl add_user gdr test
   - sudo rabbitmqctl add_vhost celeryamqplib
   - sudo rabbitmqctl set_permissions -p celeryamqplib gdr '.*' '.*' '.*'
   - sudo rabbitmqctl add_vhost celerypecl
   - sudo rabbitmqctl set_permissions -p celerypecl gdr '.*' '.*' '.*'
-  # Redis
-  - sudo start redis-server
   # Celery
-  - sudo apt-get install -y python-virtualenv
-  - virtualenv venv
-  - venv/bin/pip install celery redis
+  - sudo apt-get install python-virtualenv
+  - virtualenv -p python3 venv
+  - venv/bin/pip install -r testscenario/requirements.txt
   - venv/bin/celery worker --config celeryamqplibconfig --workdir $PWD/testscenario --detach --pidfile celeryamqplib.pid
   - venv/bin/celery worker --config celerypeclconfig --workdir $PWD/testscenario --detach --pidfile celerypecl.pid
   - venv/bin/celery worker --config celeryredisconfig --workdir $PWD/testscenario --detach --pidfile celeryredis.pid
