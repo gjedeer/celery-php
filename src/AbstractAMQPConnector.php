@@ -7,6 +7,12 @@ namespace Celery;
  * Abstract base class
  * @package celery-php
  */
+
+require_once __DIR__ . "/PECLAMQPConnector.php";
+require_once __DIR__ . "/AMQPLibConnector.php";
+require_once __DIR__ . "/AMQPLibConnectorSsl.php";
+require_once __DIR__ . "/RedisConnector.php";
+
 abstract class AbstractAMQPConnector
 {
     /**
