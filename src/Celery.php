@@ -43,6 +43,8 @@
 
 namespace Celery;
 
+require_once __DIR__ . "CeleryAbstract.php";
+
 /**
  * Simple client for a Celery server
  *
