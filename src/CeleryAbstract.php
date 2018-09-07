@@ -4,6 +4,8 @@ namespace Celery;
 
 use PhpAmqpLib\Exception\AMQPProtocolConnectionException;
 
+require_once __DIR__ . "/AbstractAMQPConnector.php";
+
 /**
  * Client for a Celery server - abstract base class implementing actual logic
  * @package celery-php
