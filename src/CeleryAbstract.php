@@ -23,7 +23,7 @@ abstract class CeleryAbstract
 
     private $isConnected = false;
 
-    public function getBackendConnectionDetails() { return $this->backend_connection_details;}
+    public function getBackendConnection() { return $this->backend_connection;}
 
     private function SetDefaultValues($details)
     {
