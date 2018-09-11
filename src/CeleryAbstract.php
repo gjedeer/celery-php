@@ -136,7 +136,7 @@ abstract class CeleryAbstract
             'content_type' => 'application/json',
             'content_encoding' => 'UTF-8',
             'immediate' => false,
-			'reply-to' => 'amq.rabbitmq.reply-to'
+			'reply_to' => 'result_queue'
         ];
 
         if ($this->broker_connection_details['persistent_messages']) {
@@ -159,7 +159,7 @@ abstract class CeleryAbstract
         if ($async_result) {
             return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
         } else {
-            return true;
+            return $id;
         }
     }
 
