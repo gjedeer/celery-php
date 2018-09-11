@@ -136,7 +136,7 @@ abstract class CeleryAbstract
             'content_type' => 'application/json',
             'content_encoding' => 'UTF-8',
             'immediate' => false,
-			'reply_to' => 'result_queue'
+			'reply_to' => $this->broker_connection_details['reply_to']
         ];
 
         if ($this->broker_connection_details['persistent_messages']) {
