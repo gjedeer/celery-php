@@ -23,13 +23,15 @@ abstract class CeleryAbstract
 
     private $isConnected = false;
 
+    public function getBackendConnection() { return $this->backend_connection;}
+
     private function SetDefaultValues($details)
     {
-        $defaultValues = ["host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => []];
+        $defaultValues = ["host" => "", "login" => "", "password" => "", "vhost" => "", "exchange" => "celery", "binding" => "celery", "port" => 5672, "connector" => false, "persistent_messages" => false, "result_expire" => 0, "ssl_options" => [], "reply_to" => "celeryresults"];
 
         $returnValue = [];
 
-        foreach (['host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options'] as $detail) {
+        foreach (['host', 'login', 'password', 'vhost', 'exchange', 'binding', 'port', 'connector', 'persistent_messages', 'result_expire', 'ssl_options', 'reply_to'] as $detail) {
             if (!array_key_exists($detail, $details)) {
                 $returnValue[$detail] = $defaultValues[$detail];
             } else {
@@ -134,6 +136,7 @@ abstract class CeleryAbstract
             'content_type' => 'application/json',
             'content_encoding' => 'UTF-8',
             'immediate' => false,
+			'reply_to' => $this->broker_connection_details['reply_to']
         ];
 
         if ($this->broker_connection_details['persistent_messages']) {
@@ -156,7 +159,7 @@ abstract class CeleryAbstract
         if ($async_result) {
             return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
         } else {
-            return true;
+            return $id;
         }
     }
 
