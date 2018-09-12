@@ -159,7 +159,7 @@ abstract class CeleryAbstract
         if ($async_result) {
             return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
         } else {
-            return $id;
+            return true;
         }
     }
 
