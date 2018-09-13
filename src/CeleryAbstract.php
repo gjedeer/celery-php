@@ -6,6 +6,7 @@ use PhpAmqpLib\Exception\AMQPProtocolConnectionException;
 
 require_once __DIR__ . "/AbstractAMQPConnector.php";
 require_once __DIR__ . "/AsyncResult.php";
+require_once __DIR__ . "/CeleryConnectionException.php";
 
 /**
  * Client for a Celery server - abstract base class implementing actual logic
