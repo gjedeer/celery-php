@@ -43,6 +43,8 @@
 
 namespace Celery;
 
+require_once __DIR__ . "/CeleryAbstract.php";
+
 /**
  * Simple client for a Celery server
  *
@@ -64,7 +66,7 @@ class Celery extends CeleryAbstract
      * @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
      * @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
      */
-    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $result_expire=0, $ssl_options=[])
+    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $result_expire=0, $ssl_options=[], $reply_to="celeryresults")
     {
         $broker_connection = [
             'host' => $host,
@@ -76,7 +78,8 @@ class Celery extends CeleryAbstract
             'port' => $port,
             'connector' => $connector,
             'result_expire' => $result_expire,
-            'ssl_options' => $ssl_options
+            'ssl_options' => $ssl_options,
+			'reply_to' => $reply_to
         ];
         $backend_connection = $broker_connection;
 
