@@ -1,3 +1,10 @@
+## Archived
+
+I have no more commercial or personal use for this project. It doesn't seem to be used by any Free Software projects and I'm definitely not spending my spare time on something used internally by some random companies I never met. Check out the [forks](https://github.com/gjedeer/celery-php/network), maybe you'll find something that works for you there. 
+
+Thanks to all the contributors!
+
+
 PHP client capable of executing [Celery](http://celeryproject.org/) tasks and
 reading asynchronous results.
 
