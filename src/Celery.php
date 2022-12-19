@@ -53,20 +53,23 @@ namespace Celery;
 class Celery extends CeleryAbstract
 {
     /**
-     * @param string host
-     * @param string login
-     * @param string password
-     * @param string vhost AMQP vhost, may be left empty or NULL for non-AMQP backends like Redis
-     * @param string exchange AMQP exchange to use. For Redis it maps to queue key name. See CELERY_DEFAULT_EXCHANGE in Celery docs. (set to 'celery' when in doubt)
-     * @param string binding AMQP binding a.k.a. routing key. See CELERY_DEFAULT_ROUTING_KEY. (set to 'celery' when in doubt)
-     * @param int port
-     * @param string connector Which connector library to use. One of: 'pecl', 'php-amqplib', 'php-amqplib-ssl', 'redis'
-     * @param int result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
-     * @param array ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
+     * @param string $host
+     * @param string $login
+     * @param string $password
+     * @param string $vhost AMQP vhost, may be left empty or NULL for non-AMQP backends like Redis
+     * @param string $exchange AMQP exchange to use. For Redis it maps to queue key name. See CELERY_DEFAULT_EXCHANGE in Celery docs. (set to 'celery' when in doubt)
+     * @param string $binding AMQP binding a.k.a. routing key. See CELERY_DEFAULT_ROUTING_KEY. (set to 'celery' when in doubt)
+     * @param int $port
+     * @param string $connector Which connector library to use. One of: 'pecl', 'php-amqplib', 'php-amqplib-ssl', 'redis'
+     * @param bool $persistent_messages False = transient queue, True = persistent queue. Check "Using Transient Queues" in Celery docs (set to false when in doubt)
+     * @see {http://docs.celeryproject.org/en/latest/userguide/optimizing.html#using-transient-queues}
+     * @param int $result_expire Expire time for result queue, milliseconds (for AMQP exchanges only)
+     * @param array $ssl_options Used only for 'php-amqplib-ssl' connections, an associative array with values as defined here: http://php.net/manual/en/context.ssl.php
      */
-    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=false, $result_expire=0, $ssl_options=[])
+
+    public function __construct($host, $login, $password, $vhost, $exchange='celery', $binding='celery', $port=5672, $connector=null, $persistent_messages=false, $result_expire=0, $ssl_options=[])
     {
-        $broker_connection = [
+        $backend_connection = $broker_connection = [
             'host' => $host,
             'login' => $login,
             'password' => $password,
@@ -74,13 +77,13 @@ class Celery extends CeleryAbstract
             'exchange' => $exchange,
             'binding' => $binding,
             'port' => $port,
-            'connector' => $connector,
+            'connector' => $connector !== false ? $connector : null,
+            'persistent_messages' => $persistent_messages,
             'result_expire' => $result_expire,
             'ssl_options' => $ssl_options
         ];
-        $backend_connection = $broker_connection;
 
-        $items = $this->BuildConnection($broker_connection);
-        $items = $this->BuildConnection($backend_connection, true);
+        $this->BuildConnection($broker_connection);
+        $this->BuildConnection($backend_connection, true);
     }
 }
